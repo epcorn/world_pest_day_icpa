@@ -178,7 +178,7 @@ export default function AdminDashboard() {
                     <div className="md:ml-auto self-stretch md:self-center flex flex-col space-y-3 w-full md:w-auto">
                       <button
                         onClick={() => handleApprove(_id)}
-                        disabled={approving[_id] || verified} // Disable if approving or already verified
+                        //disabled={approving[_id] || verified} // Disable if approving or already verified
                         className={`w-full md:w-40 px-5 py-2 rounded-md shadow-sm transition duration-300 ease-in-out font-semibold ${
                           approving[_id] || verified
                             ? "bg-gray-400 text-gray-700 cursor-not-allowed"

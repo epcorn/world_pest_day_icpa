@@ -1,5 +1,6 @@
-module.exports = function generateCertificateHTML(name, companyName, issueDate) {
+module.exports = function generateCertificateHTML(annotation, name, companyName, issueDate) {
   // Fallback values for user data
+  const safeAnnotation = annotation && annotation.trim() ? annotation.trim() : "";
   const safeName = name && name.trim() ? name.trim() : "Unknown Participant";
   const safeCompanyName = companyName && companyName.trim() ? companyName.trim() : "N/A";
   const safeIssueDate = issueDate && issueDate.trim() ? issueDate.trim() : new Date().toLocaleDateString('en-US', {
@@ -10,6 +11,7 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
 
   // Log the values being used
   console.log('Generating certificate with:', {
+    annotation: safeAnnotation,
     name: safeName,
     companyName: safeCompanyName,
     issueDate: safeIssueDate,
@@ -18,8 +20,8 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
   // Define image URLs
   const logoUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_LOGO.jpg';
   const presidentSigUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_PRESIDENT_SIGN.png';
-  const vpSigUrl = 'http://localhost:5000/static/IPCA_VP_SIGN.png';
-  const secretarySigUrl = 'http://localhost:5000/static/IPCA_SECRETARY_SIGN.png';
+  const vpSigUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_VP_SIGN.png';
+  const secretarySigUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_SECRETARY_SIGN.png';
 
   // Log image URLs for debugging
   console.log('Image URLs:', {
@@ -39,7 +41,6 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" rel="stylesheet"/>
   <style>
-    /* Same styles as before */
     body {
       font-family: Calibri, sans-serif;
       margin: 0;
@@ -268,9 +269,9 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
 
       .certificate-container {
         width: 100%;
-        max-width: 285mm;
-        min-height: auto;
-        padding: 4mm 4mm 2mm 4mm;
+        max-width: 277mm;
+        max-height: 190mm; /* Constrain to fit within A4 height after margins */
+        padding: 3mm 3mm 2mm 3mm; /* Reduced padding */
         border: 18px solid #003366;
         background-color: #fff;
         background-image: none;
@@ -286,8 +287,8 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
       .certificate-container::after {
         content: '';
         position: absolute;
-        width: 143px;
-        height: 143px;
+        width: 120px; /* Reduced from 143px */
+        height: 120px;
         z-index: 2;
         background-image: linear-gradient(to bottom, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
         background-size: 100% 100%;
@@ -317,78 +318,82 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
       }
 
       .main-content {
-        flex-grow: 1;
-        margin-bottom: 0mm;
+        margin-bottom: 0mm; /* Tightened */
       }
 
       .awarded-text {
-        margin-top: 5px;
-        margin-bottom: 8px;
+        margin-top: 3px; /* Reduced */
+        margin-bottom: 6px; /* Reduced */
+        font-size: 1.4em; /* Slightly smaller */
       }
 
       .recipient-name {
-        margin-bottom: 2px;
+        margin-bottom: 1px;
+        font-size: 2.4em; /* Reduced from 2.6em */
       }
 
       .from-text {
-        margin-top: 2px;
-        margin-bottom: 2px;
+        margin-top: 1px;
+        margin-bottom: 1px;
+        font-size: 1.1em; /* Slightly smaller */
       }
 
       .recipient-company {
-        margin-top: 2px;
-        margin-bottom: 5px;
+        margin-top: 1px;
+        margin-bottom: 3px; /* Reduced */
+        font-size: 1.6em; /* Reduced from 1.8em */
       }
 
       .participation-text {
         margin-bottom: 0px;
+        font-size: 1.4em; /* Slightly smaller */
       }
 
       .event-name {
         margin-bottom: 0px;
+        font-size: 2.6em; /* Reduced from 2.8em */
       }
 
       .celebrated-by {
         margin-bottom: 0px;
+        font-size: 0.9em; /* Slightly smaller */
       }
 
       .organization-name {
-        margin-bottom: 5mm;
+        margin-bottom: 3mm; /* Reduced from 5mm */
+        font-size: 1.8em; /* Reduced from 2em */
       }
 
       .footer-section {
-        margin-top: 2mm;
-        margin-bottom: 2mm;
+        margin-top: 1mm; /* Reduced */
+        margin-bottom: 1mm; /* Reduced */
       }
 
       .signature-image {
-        max-width: 90px;
-        margin-bottom: 2px;
-        padding-bottom: 2px;
+        max-width: 80px; /* Reduced from 90px */
+        margin-bottom: 1px;
+        padding-bottom: 1px;
       }
 
       .signature-text {
-        font-size: 0.85em;
+        font-size: 0.8em; /* Reduced from 0.85em */
       }
 
       .issue-note {
-        font-size: 0.75em;
-        margin-bottom: 0.5mm;
+        font-size: 0.7em; /* Reduced from 0.75em */
+        margin-bottom: 0.3mm;
         line-height: 1.1;
       }
 
       .disclaimer {
-        font-size: 0.7em;
-        margin-top: 1mm;
+        font-size: 0.65em; /* Reduced from 0.7em */
+        margin-top: 0.5mm;
         margin-bottom: 0mm;
-        padding-top: 2px;
+        padding-top: 1px;
         line-height: 1.1;
       }
 
-      h1 { font-size: 3em; }
-      .event-name { font-size: 2.8em; }
-      .organization-name { font-size: 2em; }
-      .recipient-name { font-size: 2.6em; }
+      h1 { font-size: 2.8em; } /* Reduced from 3em */
     }
   </style>
 </head>
@@ -401,7 +406,7 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
 
     <div class="main-content">
       <p class="serif-text awarded-text">This certificate is proudly presented to</p>
-      <p class="recipient-name">${safeName}</p>
+      <p class="recipient-name">${safeAnnotation}.${safeName}</p>
       <span class="from-text">from</span>
       <span class="recipient-company">${safeCompanyName}</span>
       <p class="participation-text">for successfully participating in</p>
@@ -414,17 +419,17 @@ module.exports = function generateCertificateHTML(name, companyName, issueDate) 
       <div class="signature-block">
         <img src="${presidentSigUrl}" alt="President Signature" class="signature-image"/>
         <span class="signature-text">Hon. President</span>
-        <span class="signature-text">Jane Smith</span>
+        <span class="signature-text">Dr.Satish Tyagi</span>
       </div>
       <div class="signature-block">
         <img src="${vpSigUrl}" alt="Vice President Signature" class="signature-image"/>
         <span class="signature-text">Hon. Vice President</span>
-        <span class="signature-text">John Brown</span>
+        <span class="signature-text">Mr.Stelson F.Quadros</span>
       </div>
       <div class="signature-block">
         <img src="${secretarySigUrl}" alt="Secretary Signature" class="signature-image"/>
         <span class="signature-text">Hon. Secretary</span>
-        <span class="signature-text">Emily White</span>
+        <span class="signature-text">Mr.Binay P.singh</span>
       </div>
     </div>
 

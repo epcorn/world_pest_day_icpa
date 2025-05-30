@@ -6,8 +6,8 @@ const sendEmail = require('../utils/sendEmail');
 
 // POST /api/users/register
 router.post('/register', async (req, res) => {
-  const { name, companyName, email, mobile } = req.body;
-  console.log('Register request received:', { name, companyName, email, mobile });
+  const { annotation , name, companyName, email, mobile } = req.body;
+  console.log('Register request received:', { annotation,name, companyName, email, mobile });
 
   try {
     // Validate email format
@@ -35,6 +35,7 @@ router.post('/register', async (req, res) => {
       { email },
       {
         $setOnInsert: {
+          annotation,
           name,
           companyName,
           mobile,
@@ -56,6 +57,46 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ message: `Server error: ${err.message}` });
   }
 });
+
+
+router.post('/check', async (req, res) => {
+  try {
+    const { annotation, email, name, companyName, mobile } = req.body;
+
+    // Find user by email first
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if all other details including annotation match exactly
+    if (
+      user.annotation === annotation &&
+      user.name === name &&
+      user.companyName === companyName &&
+      user.mobile === mobile
+    ) {
+      return res.status(200).json({
+        videoUrl: user.videoUrl || '',
+        isVerified: user.isVerified,
+        name: user.name,
+        companyName: user.companyName,
+        mobile: user.mobile,
+        annotation: user.annotation,
+      });
+    } else {
+      return res.status(400).json({
+        message: 'User details do not match. Please check your information and try again.',
+      });
+    }
+  } catch (error) {
+    console.error('Error in /check:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 
 // GET /api/verify
 router.get('/verify', async (req, res) => {

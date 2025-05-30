@@ -92,11 +92,25 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
       year: 'numeric'
     });
 
-    // Generate certificate HTML
-    const certificateHtml = generateCertificateHTML(user.name, user.companyName || 'N/A', issueDate);
+    // Determine annotation (e.g., "Mr. ", "Ms. ", "Dr. ").
+    // Assuming 'user.annotation' might be a field in your User model.
+    // If not, you might need to add it or derive it based on other user data.
+    // For now, if user.annotation is empty, we'll just pass an empty string.
+    // The certificateTemplate.js will then display just the name.
+    // If you want a default like "Mr. " when no annotation is provided by the user,
+    // you would set it here: `const userAnnotationPrefix = user.annotation ? `${user.annotation} ` : "Mr. ";`
+    const userAnnotationPrefix = user.annotation ? `${user.annotation} ` : ""; // Default to empty if no annotation in user model
+
+    // Generate certificate HTML - Pass parameters in correct order
+    const certificateHtml = generateCertificateHTML(
+      userAnnotationPrefix, // Annotation (e.g., "Mr. ", "Dr. ")
+      user.name,            // Participant's Name
+      user.companyName || 'N/A', // Company Name
+      issueDate             // Issue Date
+    );
 
     // Launch Puppeteer to generate PDF
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     await page.setContent(certificateHtml, { waitUntil: 'networkidle0' });
     await page.emulateMediaType('print');
@@ -104,7 +118,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
       format: 'A4',
       landscape: true,
       printBackground: true,
-      margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' }
+      margin: { top: '0', right: '0', bottom: '0', left: '0' } // CRITICAL: Remove Puppeteer default margins
     });
     await browser.close();
 
@@ -136,7 +150,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
     res.status(200).json({ message: 'User approved and certificate emailed successfully' });
   } catch (err) {
     console.error('Error approving user:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
