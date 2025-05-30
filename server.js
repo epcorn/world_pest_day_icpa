@@ -32,8 +32,8 @@ app.use(express.static(path.join(__dirname, 'client/dist')));
 // 4. Catch-all route to serve the React app's index.html for any unmatched routes.
 //    This is crucial for client-side routing (e.g., React Router).
 //    It MUST BE THE ABSOLUTE LAST ROUTE DEFINITION in your server.js.
-app.get('/*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
 });
 
 
