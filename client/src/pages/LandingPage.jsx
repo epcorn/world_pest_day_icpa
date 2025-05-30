@@ -60,7 +60,8 @@ export default function LandingPage() {
     const payload = { annotation, name, companyName, email, mobile };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/check', payload);
+      // MODIFIED: Use VITE_APP_API_BASE_URL for user check
+      const response = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/check`, payload);
       const user = response.data;
 
       localStorage.setItem('userEmail', email);
@@ -71,10 +72,8 @@ export default function LandingPage() {
         normalize(user.companyName) === normalize(companyName) &&
         normalize(user.mobile) === normalize(mobile) &&
         normalize(user.annotation) === normalize(annotation)
-      ) 
-      {
-       
-             console.log('User videoUrl:', user.videoUrl);  // <-- Log videoUrl here
+      ) {
+        console.log('User videoUrl:', user.videoUrl); // <-- Log videoUrl here
 
         if (user.videoUrl) {
           setExistingUser(user);
@@ -87,7 +86,8 @@ export default function LandingPage() {
     } catch (err) {
       if (err.response?.status === 404) {
         try {
-          await axios.post('http://localhost:5000/api/users/register', payload);
+          // MODIFIED: Use VITE_APP_API_BASE_URL for user registration
+          await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/register`, payload);
           localStorage.setItem('userEmail', email);
           localStorage.setItem('isVerified', 'false');
           navigate('/video-submission');
@@ -121,11 +121,12 @@ export default function LandingPage() {
           <p><strong>Company:</strong> {existingUser.companyName}</p>
           <p><strong>Mobile:</strong> {existingUser.mobile}</p>
           <div className="mt-4">
-<video
-  controls
-  src={`http://localhost:5000${existingUser.videoUrl}`}
-  className="w-full rounded"
-/>
+            {/* MODIFIED: Use VITE_APP_API_BASE_URL for video source */}
+            <video
+              controls
+              src={`${import.meta.env.VITE_APP_API_BASE_URL}${existingUser.videoUrl}`}
+              className="w-full rounded"
+            />
           </div>
           <p className="mt-2 text-green-700 font-semibold">
             {existingUser.isVerified ? 'Your video is verified!' : 'Your video is pending verification.'}

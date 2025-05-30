@@ -16,8 +16,8 @@ export default function VideoSubmissionPage() {
           setError('No user email found. Please register again.');
           return;
         }
-        // Assumes /api/users/video?email=... exists
-        const res = await axios.get(`http://localhost:5000/api/users/video?email=${encodeURIComponent(email)}`);
+        // MODIFIED: Use VITE_APP_API_BASE_URL for fetching user video
+        const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/video?email=${encodeURIComponent(email)}`);
         setUserVideo(res.data);
       } catch (err) {
         console.error('Error fetching user video:', err.response?.data || err.message);
@@ -56,7 +56,8 @@ export default function VideoSubmissionPage() {
         setError('No user email found. Please register again.');
         return;
       }
-      const res = await axios.post(`http://localhost:5000/api/upload?email=${encodeURIComponent(email)}`, formData, {
+      // MODIFIED: Use VITE_APP_API_BASE_URL for video upload
+      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/upload?email=${encodeURIComponent(email)}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setUserVideo(res.data);
@@ -175,8 +176,9 @@ export default function VideoSubmissionPage() {
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Your Submission</h2>
             <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-4">
+              {/* MODIFIED: Use VITE_APP_API_BASE_URL for displaying uploaded video */}
               <video
-                src={`http://localhost:5000${userVideo.videoUrl}`}
+                src={`${import.meta.env.VITE_APP_API_BASE_URL}${userVideo.videoUrl}`}
                 controls
                 className="rounded-md w-full md:w-1/2"
               >

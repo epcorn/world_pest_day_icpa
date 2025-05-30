@@ -11,11 +11,13 @@ export default function AdminLogin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-const res = await axios.post("http://localhost:5000/api/admin/login", { email, password });
+      // MODIFIED: Use VITE_APP_API_BASE_URL for the API call
+      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/admin/login`, { email, password });
       localStorage.setItem("adminToken", res.data.token);
       navigate("/admin/dashboard");
     } catch (err) {
       setError("Invalid credentials or server error.");
+      console.error("Admin Login Error:", err); // Added for better debugging
     }
   };
 

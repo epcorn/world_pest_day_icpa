@@ -17,7 +17,8 @@ export default function AdminDashboard() {
           navigate("/admin/login");
           throw new Error("No admin token found. Please log in.");
         }
-        const res = await axios.get("http://localhost:5000/api/admin/submissions", {
+        // MODIFIED: Use VITE_APP_API_BASE_URL
+        const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/admin/submissions`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -47,8 +48,9 @@ export default function AdminDashboard() {
         navigate("/admin/login");
         return;
       }
+      // MODIFIED: Use VITE_APP_API_BASE_URL
       const res = await axios.post(
-        `http://localhost:5000/api/admin/approve/${userId}`,
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/admin/approve/${userId}`,
         {},
         {
           headers: {
@@ -80,7 +82,8 @@ export default function AdminDashboard() {
       alert("No video available for download.");
       return;
     }
-    const fullUrl = `http://localhost:5000${videoUrl}`;
+    // MODIFIED: Use VITE_APP_API_BASE_URL
+    const fullUrl = `${import.meta.env.VITE_APP_API_BASE_URL}${videoUrl}`;
     console.log("Attempting to download video from:", fullUrl);
 
     const link = document.createElement("a");
@@ -134,7 +137,8 @@ export default function AdminDashboard() {
 
                 console.log(`Rendering Submission ${_id}:`, { username, email, videoUrl, verified });
 
-                const fullVideoUrl = videoUrl ? `http://localhost:5000${videoUrl}` : '';
+                // MODIFIED: Use VITE_APP_API_BASE_URL for video source
+                const fullVideoUrl = videoUrl ? `${import.meta.env.VITE_APP_API_BASE_URL}${videoUrl}` : '';
 
                 return (
                   <div
