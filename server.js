@@ -11,39 +11,51 @@ const adminRoutes = require('./routes/adminRoute');
 
 const app = express();
 
+// --- START CORS CONFIGURATION ---
+// Define the specific origins that are allowed to access your backend API
+const allowedOrigins = [
+  'https://world-pest-day-client.onrender.com', // **YOUR DEPLOYED FRONTEND URL**
+  'http://localhost:5173',                   // For local frontend development (Vite default)
+  // Add other local development origins if you use a different port, e.g., 'http://localhost:3000'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests, or same-origin requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly list all HTTP methods your API uses
+  allowedHeaders: ['Content-Type', 'Authorization'], // Crucial for headers like 'Authorization' (for JWT tokens)
+  credentials: true // Set to true if your frontend sends cookies or authorization headers
+};
+
+// Apply the configured CORS middleware
+app.use(cors(corsOptions));
+// --- END CORS CONFIGURATION ---
+
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(express.json()); // This should typically come after CORS for correct header processing
 
 // 1. Serve static files from the 'Uploads' folder (e.g., for user-uploaded images)
-// This should be one of the first static middleware to ensure direct access to uploads
 app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 
 // 2. API Routes - These MUST come BEFORE any client-side static file serving
-//    or the catch-all route for your frontend.
 app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
 app.use('/api/admin', adminRoutes);
 
-// 3. Serve static files from the React client's 'build' folder.
-//    This serves your compiled React JS, CSS, images, etc.
-//    It comes AFTER API routes because you want /api requests to hit your backend first.
-// app.use(express.static(path.join(__dirname, 'client/dist')));
-// // 4. Catch-all route to serve the React app's index.html for any unmatched routes.
-// //    This is crucial for client-side routing (e.g., React Router).
-// //    It MUST BE THE ABSOLUTE LAST ROUTE DEFINITION in your server.js.
-// app.get('*', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
-// });
-
+// (The commented-out client-side static serving is correct as your frontend is deployed separately)
 
 // Port
 const PORT = process.env.PORT || 5000;
 console.log('EMAIL_USER:', process.env.EMAIL_USER);
 console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
 
-
-// MongoDB Connection (simplified as discussed, removing deprecated options)
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
   console.log("✅ MongoDB connected");
