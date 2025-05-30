@@ -28,8 +28,7 @@ app.use('/api/admin', adminRoutes);
 // 3. Serve static files from the React client's 'build' folder.
 //    This serves your compiled React JS, CSS, images, etc.
 //    It comes AFTER API routes because you want /api requests to hit your backend first.
-app.use(express.static(path.join(__dirname, 'client/build')));
-
+app.use(express.static(path.join(__dirname, 'client/dist')));
 // 4. Catch-all route to serve the React app's index.html for any unmatched routes.
 //    This is crucial for client-side routing (e.g., React Router).
 //    It MUST BE THE ABSOLUTE LAST ROUTE DEFINITION in your server.js.
