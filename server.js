@@ -6,8 +6,11 @@ require("dotenv").config();
 
 // Import your routes
 const authRoutes = require("./routes/auth");
+console.log('authRoutes loaded:', !!authRoutes);
 const uploadRoute = require('./routes/uploadRoute');
+console.log('uploadRoute loaded:', !!uploadRoute);
 const adminRoutes = require('./routes/adminRoute');
+console.log('adminRoutes loaded:', !!adminRoutes);
 
 const app = express();
 
@@ -48,16 +51,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
 app.use('/api/admin', adminRoutes);
+
+// Test route
 app.get('/test', (req, res) => {
   res.json({ message: 'Server is running' });
 });
 
-
-
 // Port
 const PORT = process.env.PORT || 5000;
-console.log('EMAIL_USER:', process.env.EMAIL_USER);
-console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
+
+// Remove sensitive logs for security
+// console.log('EMAIL_USER:', process.env.EMAIL_USER);
+// console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
