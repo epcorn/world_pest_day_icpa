@@ -114,7 +114,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-green-100 to-blue-100 flex flex-col items-center justify-center p-6">
       <div className="text-center mb-8">
         <h1 className="text-6xl font-bold text-green-800 flex justify-center space-x-4">
-          <span className="worlds-text">World's</span>
+          <span className="worlds-text">World</span>
           <span className="pestday-text">Pest Day</span>
         </h1>
         <p className="text-2xl text-gray-700 mt-4">
