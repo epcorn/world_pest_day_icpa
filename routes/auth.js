@@ -29,7 +29,6 @@ const corsOptions = {
 
 // <--- NEW: Apply cors middleware directly to this router
 // This will ensure preflight requests for routes within this router are handled
-router.use(cors(corsOptions));
 
 // POST /api/users/register
 router.post('/register', async (req, res) => {
