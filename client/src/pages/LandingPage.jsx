@@ -4,15 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 
 export default function LandingPage() {
-  const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
   
-  // Debug environment variables
-  useEffect(() => {
-    console.log('Current Environment:', {
-      API_BASE_URL,
-      NODE_ENV: import.meta.env.MODE
-    });
-  }, []);
+  console.log('API Base URL:', import.meta.env.VITE_APP_API_BASE_URL);
+
+  // ... rest of your code
+
 
   const [formData, setFormData] = useState({
     annotation: 'Mr',
@@ -21,13 +17,11 @@ export default function LandingPage() {
     email: '',
     mobile: '',
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [existingUser, setExistingUser] = useState(null);
   const navigate = useNavigate();
 
-  // GSAP animations
   useEffect(() => {
     gsap.fromTo(
       '.worlds-text',
@@ -56,50 +50,39 @@ export default function LandingPage() {
   const normalize = (str) => (str || '').trim().toLowerCase();
 
   const handleSubmit = async (e) => {
+      console.log('Submitting to:', `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/check`);
+
     e.preventDefault();
     setLoading(true);
     setError('');
     setExistingUser(null);
 
-    const validationError = validateForm(formData);
+    const { annotation, name, companyName, email, mobile } = formData;
+    const validationError = validateForm({ name, email, mobile });
     if (validationError) {
       setError(validationError);
       setLoading(false);
       return;
     }
 
+    const payload = { annotation, name, companyName, email, mobile };
+
     try {
-      console.log('Attempting to check user at:', `${API_BASE_URL}/api/users/check`);
-      
-      // 1. First try checking user existence
-      const checkResponse = await axios.post(
-        `${API_BASE_URL}/api/users/check`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          withCredentials: true
-        }
-      );
+      // MODIFIED: Use VITE_APP_API_BASE_URL for user check
+      const response = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/check`, payload);
+      const user = response.data;
 
-      const user = checkResponse.data;
-      console.log('User check response:', user);
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('isVerified', user.isVerified ? 'true' : 'false');
 
-      // Store user data
-      localStorage.setItem('userData', JSON.stringify({
-        email: formData.email,
-        isVerified: user.isVerified
-      }));
-
-      // Compare normalized data
       if (
-        normalize(user.name) === normalize(formData.name) &&
-        normalize(user.companyName) === normalize(formData.companyName) &&
-        normalize(user.mobile) === normalize(formData.mobile) &&
-        normalize(user.annotation) === normalize(formData.annotation)
+        normalize(user.name) === normalize(name) &&
+        normalize(user.companyName) === normalize(companyName) &&
+        normalize(user.mobile) === normalize(mobile) &&
+        normalize(user.annotation) === normalize(annotation)
       ) {
+        console.log('User videoUrl:', user.videoUrl); // <-- Log videoUrl here
+
         if (user.videoUrl) {
           setExistingUser(user);
         } else {
@@ -108,39 +91,16 @@ export default function LandingPage() {
       } else {
         setError('Details mismatch with our records.');
       }
-
     } catch (err) {
-      console.error('API Error:', {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
-        config: err.config
-      });
-
-      // Handle 404 - User not found
       if (err.response?.status === 404) {
         try {
-          console.log('Attempting to register new user at:', `${API_BASE_URL}/api/users/register`);
-          
-          const registerResponse = await axios.post(
-            `${API_BASE_URL}/api/users/register`,
-            formData,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              }
-            }
-          );
-
-          localStorage.setItem('userData', JSON.stringify({
-            email: formData.email,
-            isVerified: false
-          }));
-
+          // MODIFIED: Use VITE_APP_API_BASE_URL for user registration
+          await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/register`, payload);
+          localStorage.setItem('userEmail', email);
+          localStorage.setItem('isVerified', 'false');
           navigate('/video-submission');
         } catch (regErr) {
-          setError(regErr.response?.data?.message || 'Registration failed. Please try again.');
+          setError(regErr.response?.data?.message || 'Failed to register new user.');
         }
       } else {
         setError(err.response?.data?.message || 'Failed to submit form. Please try again.');
@@ -165,28 +125,19 @@ export default function LandingPage() {
       {existingUser ? (
         <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
           <h2 className="text-xl font-semibold mb-4 text-center">Your Submitted Video</h2>
-          <div className="space-y-2 mb-4">
-            <p><strong>Name:</strong> {existingUser.name}</p>
-            <p><strong>Company:</strong> {existingUser.companyName}</p>
-            <p><strong>Mobile:</strong> {existingUser.mobile}</p>
-          </div>
+          <p><strong>Name:</strong> {existingUser.name}</p>
+          <p><strong>Company:</strong> {existingUser.companyName}</p>
+          <p><strong>Mobile:</strong> {existingUser.mobile}</p>
           <div className="mt-4">
+            {/* MODIFIED: Use VITE_APP_API_BASE_URL for video source */}
             <video
               controls
-              src={`${API_BASE_URL}${existingUser.videoUrl}`}
+              src={`${import.meta.env.VITE_APP_API_BASE_URL}${existingUser.videoUrl}`}
               className="w-full rounded"
-              onError={(e) => {
-                console.error('Video load error:', e);
-                setError('Failed to load video. Please try again later.');
-              }}
             />
           </div>
-          <p className={`mt-4 text-center font-semibold ${
-            existingUser.isVerified ? 'text-green-600' : 'text-yellow-600'
-          }`}>
-            {existingUser.isVerified 
-              ? '✓ Your video is verified!' 
-              : 'Your video is pending verification.'}
+          <p className="mt-2 text-green-700 font-semibold">
+            {existingUser.isVerified ? 'Your video is verified!' : 'Your video is pending verification.'}
           </p>
         </div>
       ) : (
@@ -195,63 +146,46 @@ export default function LandingPage() {
             Join the Celebration
           </h2>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
-              {error}
-            </div>
-          )}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Title</label>
-              <select
-                name="annotation"
-                value={formData.annotation}
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Annotation</label>
+            <select
+              name="annotation"
+              value={formData.annotation}
+              onChange={handleChange}
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            >
+              <option value="Mr">Mr</option>
+              <option value="Ms">Ms</option>
+              <option value="Dr">Dr</option>
+              <option value="Dr.HC">Dr.HC</option>
+            </select>
+          </div>
+
+          {['name', 'companyName', 'email', 'mobile'].map((field) => (
+            <div key={field} className="mb-4">
+              <label className="block text-gray-700 mb-2 capitalize">{field.replace('Name', ' Name')}</label>
+              <input
+                type={field === 'email' ? 'email' : field === 'mobile' ? 'tel' : 'text'}
+                name={field}
+                value={formData[field]}
                 onChange={handleChange}
                 className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              >
-                <option value="Mr">Mr</option>
-                <option value="Ms">Ms</option>
-                <option value="Dr">Dr</option>
-                <option value="Dr.HC">Dr.HC</option>
-              </select>
+                required={field !== 'companyName'}
+              />
             </div>
-
-            {['name', 'companyName', 'email', 'mobile'].map((field) => (
-              <div key={field}>
-                <label className="block text-gray-700 mb-2 capitalize">
-                  {field.replace(/([A-Z])/g, ' $1').trim()}
-                </label>
-                <input
-                  type={field === 'email' ? 'email' : field === 'mobile' ? 'tel' : 'text'}
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required={field !== 'companyName'}
-                  placeholder={`Enter your ${field.replace('Name', ' Name')}`}
-                />
-              </div>
-            ))}
-          </div>
+          ))}
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full mt-6 py-3 px-4 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-colors ${
-              loading ? 'opacity-70 cursor-not-allowed' : ''
+            className={`w-full bg-green-600 text-white p-2 rounded hover:bg-green-500 transition ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {loading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
-            ) : 'Submit'}
+            {loading ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       )}

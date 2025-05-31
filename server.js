@@ -11,22 +11,19 @@ const adminRoutes = require('./routes/adminRoute');
 const app = express();
 
 // Enhanced CORS configuration
+// server.js - Revised CORS configuration
 const corsOptions = {
-  origin: [
-    'https://world-pest-day-client.onrender.com',
-    'http://localhost:3000' // for local testing
-  ],
+  origin: 'https://world-pest-day-client.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin'],
   credentials: true,
-  optionsSuccessStatus: 204
+  preflightContinue: false // Ensure preflight terminates
 };
 
-// Apply CORS globally
 app.use(cors(corsOptions));
 
-// Pre-flight requests
-app.options('*', cors(corsOptions));
+// Apply CORS globally
+
 
 // Body parsing middleware
 app.use(express.json());
