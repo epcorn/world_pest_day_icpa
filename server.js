@@ -1,7 +1,7 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require('path');
+const mongoose = require("mongoose");
+const path = require("path");
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
@@ -10,30 +10,26 @@ const adminRoutes = require('./routes/adminRoute');
 
 const app = express();
 
-// Define and use proper CORS options
 const corsOptions = {
   origin: 'https://world-pest-day-client.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  credentials: true
 };
+
 app.use(cors(corsOptions));
-
-// ✅ Handle preflight for all routes
 app.options('*', cors(corsOptions));
-
-// ✅ Handle preflight explicitly for this route (important!)
-app.options('/api/users/check', cors(corsOptions));
+app.options('/api/users/check', cors(corsOptions), (req, res) => res.sendStatus(200));
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 
 app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
-app.use('/api/admin', adminRoutes);
+app.use("/api/admin", adminRoutes);
 
-app.get('/test', (req, res) => {
-  res.json({ message: 'Server is running' });
+app.get('/test', cors(corsOptions), (req, res) => {
+  res.json({ message: 'CORS is working!' });
 });
 
 const PORT = process.env.PORT || 5000;
