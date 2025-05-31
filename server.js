@@ -48,6 +48,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
 app.use('/api/admin', adminRoutes);
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is running' });
+});
+
+
 
 // Port
 const PORT = process.env.PORT || 5000;
