@@ -3,6 +3,31 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const cors = require('cors');
+
+// Your CORS configuration from server.js
+const allowedOrigins = [
+  'https://world-pest-day-client.onrender.com',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
+// Handle preflight (OPTIONS) for /check
+router.options('/check', cors(corsOptions));
 
 // POST /api/users/register
 router.post('/register', async (req, res) => {
@@ -10,7 +35,6 @@ router.post('/register', async (req, res) => {
   console.log('Register request received:', { annotation,name, companyName, email, mobile });
 
   try {
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       console.log('Invalid email format:', email);
@@ -58,19 +82,16 @@ router.post('/register', async (req, res) => {
   }
 });
 
-
-router.post('/check', async (req, res) => {
+// POST /api/users/check
+router.post('/check', cors(corsOptions), async (req, res) => {
   try {
     const { annotation, email, name, companyName, mobile } = req.body;
 
-    // Find user by email first
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if all other details including annotation match exactly
     if (
       user.annotation === annotation &&
       user.name === name &&
@@ -96,8 +117,6 @@ router.post('/check', async (req, res) => {
   }
 });
 
-
-
 // GET /api/verify
 router.get('/verify', async (req, res) => {
   const { token } = req.query;
@@ -107,7 +126,6 @@ router.get('/verify', async (req, res) => {
     const user = await User.findOne({ email: decoded.email });
 
     if (!user) {
-      // In case user is somehow missing, create and verify
       const newUser = new User({
         name: decoded.name,
         companyName: decoded.companyName,
