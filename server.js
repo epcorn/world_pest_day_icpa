@@ -16,9 +16,8 @@ const allowedOrigins = [
   'http://localhost:5173', // Common for Vite/React dev server
   'http://localhost:3000',  // Common for Create React App dev server
   'http://localhost:8080',  // Another common local dev port
-  // IMPORTANT: Add your production frontend URL(s) here when you deploy your frontend
-  // Example for Heroku frontend: 'https://your-heroku-frontend-app.herokuapp.com',
-  // If you keep your Render frontend: 'https://world-pest-day-client.onrender.com',
+  // This is the crucial line you need to add/update:
+  'https://world-pest-day-client.onrender.com', // Your live Render frontend URL
 ];
 
 const corsOptions = {
