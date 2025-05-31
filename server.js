@@ -18,7 +18,12 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Preflight
+
+// ✅ Handle preflight for all routes
+app.options('*', cors(corsOptions));
+
+// ✅ Handle preflight explicitly for this route (important!)
+app.options('/api/users/check', cors(corsOptions));
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
