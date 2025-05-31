@@ -34,7 +34,7 @@ router.post('/register', async (req, res) => {
     );
 
     // Verification link
-    const verifyLink = `${process.env.BASE_URL || 'https://wpdbackend-b47bcc7bc31a.herokuapp.com/'}/api/users/verify?token=${token}`;
+    const verifyLink = `${process.env.BASE_URL || 'https://wpdbackend-b47bcc7bc31a.herokuapp.com'}/api/users/verify?token=${token}`;
 
     // Send verification email
     await sendEmail(
