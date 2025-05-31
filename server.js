@@ -2,7 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
-require("dotenv").config(); // This line is good to keep for local development
+require("dotenv").config();
+
+// NEW: Import Cloudinary
+const cloudinary = require('cloudinary').v2;
 
 const authRoutes = require("./routes/auth");
 const uploadRoute = require('./routes/uploadRoute');
@@ -11,24 +14,20 @@ const adminRoutes = require('./routes/adminRoute');
 const app = express();
 
 // --- REVISED CORS Configuration for Generic Use ---
-// Allow common local development origins and provide a placeholder for production
 const allowedOrigins = [
-  'http://localhost:5173', // Common for Vite/React dev server
-  'http://localhost:3000',  // Common for Create React App dev server
-  'http://localhost:8080',  // Another common local dev port
-  // This is the crucial line you need to add/update:
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:8080',
   'https://world-pest-day-client.onrender.com', // Your live Render frontend URL
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman/curl, or same-origin requests)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      // You can log the blocked origin for debugging if needed
       console.log(`CORS blocked: Origin '${origin}' not allowed.`);
       callback(new Error('Not allowed by CORS'));
     }
@@ -36,50 +35,55 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin'],
   credentials: true,
-  optionsSuccessStatus: 204 // Important for handling preflight requests
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
-// --- END REVISED CORS Configuration ---
 
-// --- Useful Diagnostic Logging (Keep for debugging on any platform) ---
+// --- Cloudinary Configuration (NEW ADDITION) ---
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true // Use secure URLs (https)
+});
+// --- END Cloudinary Configuration ---
+
+// --- Useful Diagnostic Logging ---
 app.use((req, res, next) => {
-  // Logs all incoming requests to the console
   console.log(`[DIAGNOSTIC] Incoming Request: ${req.method} ${req.url} from ${req.ip}`);
   next();
 });
-// --- END Diagnostic Logging ---
 
-
-// Body parsing middleware (Standard and essential)
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static files (Standard for serving static assets, like your 'Uploads' folder)
-app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
+// Static files (Keep for now, but will be removed/commented out later)
+// app.use('/uploads', express.static(path.join(__dirname, 'Uploads'))); // Will be removed
 
-// API Routes (Standard and essential for your application logic)
+// API Routes
 app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
 app.use("/api/admin", adminRoutes);
 
-// Test endpoint (Standard and useful for health checks)
+// Test endpoint
 app.get('/test', (req, res) => {
-  console.log('[DIAGNOSTIC] Hit /test endpoint!'); // Log when this specific route is hit
+  console.log('[DIAGNOSTIC] Hit /test endpoint!');
   res.json({ message: 'API is working!' });
 });
 
-// Error handling middleware (Standard and good practice)
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('[DIAGNOSTIC] Error Middleware:', err.stack); // Log errors
+  console.error('[DIAGNOSTIC] Error Middleware:', err.stack);
   res.status(500).json({ message: 'Something broke!' });
 });
 
-// Server Port (Standard for cloud platforms and local dev)
-const PORT = process.env.PORT || 5000; // Use process.env.PORT for cloud, fallback to 5000 locally
+// Server Port
+const PORT = process.env.PORT || 5000;
 
 // MongoDB Connection and Server Start
-mongoose.connect(process.env.MONGO_URI) // Uses MONGO_URI env var (set locally in .env, on cloud via dashboard)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
     console.log(`[DIAGNOSTIC] Attempting to listen on port ${PORT}`);
@@ -87,5 +91,5 @@ mongoose.connect(process.env.MONGO_URI) // Uses MONGO_URI env var (set locally i
   })
   .catch((err) => {
     console.error("❌ DB Connection Error:", err);
-    process.exit(1); // Exit if DB connection fails
+    process.exit(1);
   });
