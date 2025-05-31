@@ -56,7 +56,8 @@ app.use("/api/admin", adminRoutes);
 
 // Test endpoint
 app.get('/test', (req, res) => {
-  console.log('[DIAGNOSTIC] Hit /test endpoint!'); // Add this inside the route
+  console.log('[DIAGNOSTIC] Hit /test endpoint!');
+  console.log("insided /test") // Add this inside the route
   res.json({ message: 'API is working!' });
 });
 
