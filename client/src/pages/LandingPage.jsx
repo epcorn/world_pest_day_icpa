@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 
 export default function LandingPage() {
+  
+  console.log('API Base URL:', import.meta.env.VITE_APP_API_BASE_URL);
+
+  // ... rest of your code
+
+
   const [formData, setFormData] = useState({
     annotation: 'Mr',
     name: '',
@@ -44,6 +50,8 @@ export default function LandingPage() {
   const normalize = (str) => (str || '').trim().toLowerCase();
 
   const handleSubmit = async (e) => {
+      console.log('Submitting to:', `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/check`);
+
     e.preventDefault();
     setLoading(true);
     setError('');
