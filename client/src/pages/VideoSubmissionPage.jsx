@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Keep navigate in case it's used elsewhere for routing, though not in this specific logic.
 
 export default function VideoSubmissionPage() {
     const [videoFile, setVideoFile] = useState(null);
@@ -9,6 +9,8 @@ export default function VideoSubmissionPage() {
     const [error, setError] = useState('');
     const [uploading, setUploading] = useState(false);
 
+    // This is a placeholder for the navigate hook, as it's imported but not directly used in the provided logic snippet.
+    // If you plan to redirect users away from this page based on certain conditions, you'd use it here.
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,12 +19,13 @@ export default function VideoSubmissionPage() {
                 const email = localStorage.getItem('userEmail');
                 if (!email) {
                     setError('Oops! No user email found. Please head back to the landing page and register again. 😔');
-                    // navigate('/'); // Uncomment if you want to redirect
+                    // Optionally redirect to landing page if no email
+                    // navigate('/');
                     return;
                 }
                 const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/video?email=${encodeURIComponent(email)}`);
                 setUserVideo(res.data);
-                console.log("Fetched user video data:", res.data);
+                console.log(res.data);
             } catch (err) {
                 console.error('Error fetching user video:', err.response?.data || err.message);
                 setError('Failed to load your video data. Please refresh or try again later. 🚧');
@@ -63,21 +66,9 @@ export default function VideoSubmissionPage() {
             const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/upload?email=${encodeURIComponent(email)}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-
-            // Assuming the upload response (res.data) contains the updated videoUrl and isVerified status
-            // You need to merge it with the existing user data to retain name and companyName.
-            setUserVideo(prevUserVideo => ({
-                ...prevUserVideo, // Keep existing user data (like name, companyName)
-                videoUrl: res.data.videoUrl, // Update with the new video URL
-                isVerified: res.data.isVerified, // Update with the new verification status
-                // If your backend also sends name/companyName in the upload response,
-                // these lines would simply overwrite with the same data, which is fine.
-                // name: res.data.name || prevUserVideo.name,
-                // companyName: res.data.companyName || prevUserVideo.companyName,
-            }));
-
+            setUserVideo(res.data);
             setVideoFile(null); // Clear selected file after successful upload
-            alert('Video uploaded successfully! We\'ll review it soon. 🎉');
+            alert('Video uploaded successfully! We\'ll review it soon. 🎉'); // Use a more exciting alert
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to upload video. Please try again. 😢');
             console.error('Upload error:', err.response?.data);
@@ -256,7 +247,7 @@ export default function VideoSubmissionPage() {
                                     </video>
                                 </div>
                                 <div className="flex-grow text-lg text-gray-700 space-y-3">
-                                    <p><strong>Uploader:</strong> <span className="font-medium text-gray-900">{userVideo.name || 'N/A'}</span></p>
+                                    <p><strong>Uploader:</strong> <span className="font-medium text-gray-900">{userVideo.name}</span></p>
                                     <p><strong>Company:</strong> <span className="font-medium text-gray-900">{userVideo.companyName || 'N/A'}</span></p>
                                     <p className="flex items-center">
                                         <strong>Status:</strong> &nbsp;
