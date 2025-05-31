@@ -13,24 +13,26 @@ const app = express();
 
 // --- START CORS CONFIGURATION ---
 // Define the specific origins that are allowed to access your backend API
+
 const allowedOrigins = [
-  'https://world-pest-day-client.onrender.com', // **YOUR DEPLOYED FRONTEND URL**
-  'http://localhost:5173',                   // For local frontend development (Vite default)
-  // Add other local development origins if you use a different port, e.g., 'http://localhost:3000'
+  'https://world-pest-day-client.onrender.com',
+  'http://localhost:5173',
+  'http://localhost:3000'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests, or same-origin requests)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly list all HTTP methods your API uses
-  allowedHeaders: ['Content-Type', 'Authorization'], // Crucial for headers like 'Authorization' (for JWT tokens)
-  credentials: true // Set to true if your frontend sends cookies or authorization headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  // ADD THIS LINE:
+  optionsSuccessStatus: 204 // Tells preflight to respond with 204 No Content
 };
 
 // Apply the configured CORS middleware
