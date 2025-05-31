@@ -12,8 +12,6 @@ const adminRoutes = require('./routes/adminRoute');
 const app = express();
 
 // --- START CORS CONFIGURATION ---
-// Define the specific origins that are allowed to access your backend API
-
 const allowedOrigins = [
   'https://world-pest-day-client.onrender.com',
   'http://localhost:5173',
@@ -31,26 +29,25 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  // ADD THIS LINE:
-  optionsSuccessStatus: 204 // Tells preflight to respond with 204 No Content
+  optionsSuccessStatus: 204
 };
 
 // Apply the configured CORS middleware
 app.use(cors(corsOptions));
-// --- END CORS CONFIGURATION ---
+
+// --- ADD THIS LINE to handle preflight requests globally ---
+app.options('*', cors(corsOptions)); // Handles OPTIONS requests for all routes
 
 // Middleware
-app.use(express.json()); // This should typically come after CORS for correct header processing
+app.use(express.json());
 
-// 1. Serve static files from the 'Uploads' folder (e.g., for user-uploaded images)
+// Serve static files from 'Uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 
-// 2. API Routes - These MUST come BEFORE any client-side static file serving
+// API Routes
 app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
 app.use('/api/admin', adminRoutes);
-
-// (The commented-out client-side static serving is correct as your frontend is deployed separately)
 
 // Port
 const PORT = process.env.PORT || 5000;
