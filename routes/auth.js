@@ -5,30 +5,6 @@ const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const cors = require('cors'); // <--- NEW: Import cors here
 
-// Define your allowed origin(s) - It's good to keep this consistent
-// You can pass corsOptions directly here or define it if you only use it in this router
-const allowedOrigins = [
-  'https://world-pest-day-client.onrender.com', // Your Render frontend URL
-  'http://localhost:5173',
-  'http://localhost:3000'
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Ensure OPTIONS is included
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 204 // Recommended for preflight success
-};
-
-// <--- NEW: Apply cors middleware directly to this router
-// This will ensure preflight requests for routes within this router are handled
 
 // POST /api/users/register
 router.post('/register', async (req, res) => {
@@ -87,7 +63,7 @@ router.post('/register', async (req, res) => {
 });
 
 
-router.options('/check', async (req, res) => {
+router.post('/check', async (req, res) => {
   try {
     const { annotation, email, name, companyName, mobile } = req.body;
 
