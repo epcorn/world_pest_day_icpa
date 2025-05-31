@@ -49,6 +49,11 @@ app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
 app.use('/api/admin', adminRoutes);
 
+app.get('/', (req, res) => {
+  res.send('World Pest Day API is running');
+});
+
+
 // Port
 const PORT = process.env.PORT || 5000;
 console.log('EMAIL_USER:', process.env.EMAIL_USER);
