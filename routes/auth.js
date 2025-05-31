@@ -87,7 +87,7 @@ router.post('/register', async (req, res) => {
 });
 
 
-router.post('/check', async (req, res) => {
+router.options('/check', async (req, res) => {
   try {
     const { annotation, email, name, companyName, mobile } = req.body;
 
