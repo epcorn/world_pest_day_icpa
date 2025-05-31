@@ -3,78 +3,87 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
-const cors = require('cors'); // <--- NEW: Import cors here
-
 
 // POST /api/users/register
 router.post('/register', async (req, res) => {
-  const { annotation , name, companyName, email, mobile } = req.body;
-  console.log('Register request received:', { annotation,name, companyName, email, mobile });
-
+  const { annotation, name, companyName, email, mobile } = req.body;
+  
   try {
+    // Validate input
+    if (!email || !name || !companyName || !mobile) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.log('Invalid email format:', email);
       return res.status(400).json({ message: 'Invalid email format' });
     }
 
+    // Check for existing verified user
     const existingVerifiedUser = await User.findOne({ email, isVerified: true });
     if (existingVerifiedUser) {
-      console.log('Existing verified user found:', email);
       return res.status(400).json({ message: 'Email already registered and verified.' });
     }
 
-    const token = jwt.sign({ name, companyName, email, mobile }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    // IMPORTANT: For production, change this to your actual Render backend URL
-    // For local testing, it can remain localhost, but for deployed app, it must be the deployed URL
-    const verifyLink = `https://world-pest-day-api.onrender.com/api/users/verify?token=${token}`; // <--- MODIFIED: Use deployed URL for verify link
-    console.log('Verification link:', verifyLink);
+    // Create verification token
+    const token = jwt.sign(
+      { name, companyName, email, mobile }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '1h' }
+    );
 
-    console.log('Sending email to:', email);
-    await sendEmail(email, 'Verify Your Email', `Click here to verify: <a href="${verifyLink}">${verifyLink}</a>`);
-    console.log('Email sent successfully to:', email);
+    // Verification link
+    const verifyLink = `${process.env.BASE_URL || 'https://world-pest-day-api.onrender.com'}/api/users/verify?token=${token}`;
 
+    // Send verification email
+    await sendEmail(
+      email, 
+      'Verify Your Email', 
+      `Please verify your email by clicking this link: <a href="${verifyLink}">Verify Email</a>`
+    );
+
+    // Create or update user
     const user = await User.findOneAndUpdate(
       { email },
       {
-        $setOnInsert: {
-          annotation,
-          name,
-          companyName,
-          mobile,
-          email,
-          isVerified: false,
-          verificationSentAt: new Date(),
-          lastReminderSentAt: new Date()
-        }
+        annotation,
+        name,
+        companyName,
+        mobile,
+        isVerified: false,
+        verificationSentAt: new Date(),
+        lastReminderSentAt: new Date()
       },
       { upsert: true, new: true }
     );
-    console.log('User saved:', user.email);
 
     res.status(200).json({
-      message: 'Verification email sent. You can now upload your video. Please check your inbox.',
+      message: 'Verification email sent. Please check your inbox.',
     });
+
   } catch (err) {
-    console.error('Registration error:', err.stack);
-    res.status(500).json({ message: `Server error: ${err.message}` });
+    console.error('Registration error:', err);
+    res.status(500).json({ message: 'Server error during registration' });
   }
 });
 
-
+// POST /api/users/check
 router.post('/check', async (req, res) => {
   try {
     const { annotation, email, name, companyName, mobile } = req.body;
 
-    // Find user by email first
-    const user = await User.findOne({ email });
+    // Basic validation
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
 
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if all other details including annotation match exactly
+    // Check details match
     if (
       user.annotation === annotation &&
       user.name === name &&
@@ -91,26 +100,28 @@ router.post('/check', async (req, res) => {
       });
     } else {
       return res.status(400).json({
-        message: 'User details do not match. Please check your information and try again.',
+        message: 'User details do not match. Please check your information.',
       });
     }
   } catch (error) {
     console.error('Error in /check:', error);
-    return res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error during verification' });
   }
 });
 
-
 // GET /api/users/verify
-router.get('/verify', async (req, res) => { // <--- Note: This route is mounted under /api/users
+router.get('/verify', async (req, res) => {
   const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).send('Verification token is required');
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ email: decoded.email });
 
     if (!user) {
-      // In case user is somehow missing, create and verify
       const newUser = new User({
         name: decoded.name,
         companyName: decoded.companyName,
@@ -134,7 +145,10 @@ router.get('/verify', async (req, res) => { // <--- Note: This route is mounted 
     return res.send('Email verified successfully. You may now upload your video.');
   } catch (err) {
     console.error('Verification Error:', err);
-    return res.status(400).send('Invalid or expired token.');
+    if (err.name === 'TokenExpiredError') {
+      return res.status(400).send('Verification link has expired. Please register again.');
+    }
+    return res.status(400).send('Invalid verification token.');
   }
 });
 
