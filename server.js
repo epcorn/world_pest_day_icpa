@@ -17,7 +17,7 @@ app.options("*", cors()); // Preflight for all routes
 
 app.use(express.json());
 
-// Serve static files
+// Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "Uploads")));
 
 // API routes
@@ -25,7 +25,15 @@ app.use("/api/users", authRoutes);
 app.use("/api/upload", uploadRoute);
 app.use("/api/admin", adminRoutes);
 
-// Root endpoint
+// Serve React frontend static files (adjust if your build folder is different)
+app.use(express.static(path.join(__dirname, "client/build")));
+
+// Catch-all route to serve React's index.html for client-side routing
+app.get("/*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
+
+// Root endpoint (optional, since above catch-all will handle most)
 app.get("/", (req, res) => {
   res.send("World Pest Day API is running 🚀");
 });
