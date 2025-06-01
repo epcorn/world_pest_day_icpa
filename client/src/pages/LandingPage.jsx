@@ -218,7 +218,7 @@ export default function LandingPage() {
 
             {/* A simple footer for balance */}
             <div className="relative z-10 mt-16 text-gray-600 text-sm opacity-80">
-                &copy; {new Date().getFullYear()} World Pest Day. All rights reserved.
+                &copy; {new Date().getFullYear()} Indian Pest Control Association. All rights reserved.
             </div>
 
             {/* Basic CSS for the blob animation (can be in App.css or a separate style block) */}
