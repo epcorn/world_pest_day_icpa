@@ -1,20 +1,17 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const authAdmin = require('../Middleware/adminAuth'); // Assuming this path is correct
+const authAdmin = require('../Middleware/adminAuth');
 const Admin = require('../models/Admin');
-const User = require('../models/User'); // Ensure this path is correct for your User model
-const puppeteer = require('puppeteer'); // Make sure puppeteer is installed: npm install puppeteer
+const User = require('../models/User');
+const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-const generateCertificateHTML = require('./certificateTemplate'); // Assuming this path is correct
-const sendCertificateEmail = require('../utils/sendCertificateEmail'); // Assuming this path is correct
+const generateCertificateHTML = require('./certificateTemplate');
+const sendCertificateEmail = require('../utils/sendCertificateEmail');
 
 const router = express.Router();
 
-// --- Admin Login Route ---
-// @route   POST /api/admin/login
-// @desc    Admin login
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -45,9 +42,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// --- Get Submissions Route ---
-// @route   GET /api/admin/submissions
-// @desc    Get all users who uploaded a video
 router.get('/submissions', authAdmin, async (req, res) => {
     try {
         const usersWithVideos = await User.find({ videoUrl: { $ne: null } })
@@ -72,9 +66,6 @@ router.get('/submissions', authAdmin, async (req, res) => {
     }
 });
 
-
-/// @route   POST /api/admin/approve/:userId
-// @desc    Approve a user's video, generate certificate, and send email (allows re-sending)
 router.post('/approve/:userId', authAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
@@ -84,15 +75,13 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
 
         if (!user.isApproved) {
             user.isApproved = true;
-            user.approvedBy = req.admin._id; // Assuming `req.admin` is set by your auth middleware
-            user.approvedAt = new Date(); // Update the approval timestamp
-            user.status = 'approved'; // Make sure this matches your enum values if used
-            await user.save(); // Save the updated user status
-            message = 'User video approved and certificate emailed successfully.'; // Message for initial approval
+            user.approvedBy = req.admin._id;
+            user.approvedAt = new Date();
+            user.status = 'approved';
+            await user.save();
+            message = 'User video approved and certificate emailed successfully.';
         }
 
-        // --- Certificate Generation and Email Sending ---
-        // Format current date (e.g., "29 May 2025")
         const issueDate = new Date().toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'long',
@@ -101,7 +90,6 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
 
         const userAnnotationPrefix = user.annotation ? `${user.annotation} ` : "";
 
-        // Generate certificate HTML
         const certificateHtml = generateCertificateHTML(
             userAnnotationPrefix,
             user.name,
@@ -109,27 +97,21 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
             issueDate
         );
 
-        // --- MODIFIED PUPPETEER LAUNCH CONFIGURATION ---
-        // This is the crucial part to fix "Could not find Chrome" on Heroku
-        console.log('[Puppeteer] Attempting to launch browser...'); // Added for debugging
+        console.log('[Puppeteer] Attempting to launch browser...');
+        console.log('DEBUG: PUPPETEER_EXECUTABLE_PATH is:', process.env.PUPPETEER_EXECUTABLE_PATH);
+
         const browser = await puppeteer.launch({
-            headless: true, // Set to 'new' for latest Puppeteer or 'true' for older versions
+            headless: true,
             args: [
-                '--no-sandbox',                 // ESSENTIAL for Heroku's containerized environment
-                '--disable-setuid-sandbox',     // ESSENTIAL for Heroku
-                '--disable-gpu',                // Recommended for headless environments
-                '--disable-dev-shm-usage',      // Recommended for memory issues
-                '--single-process'              // Recommended for memory/performance on Heroku
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+                '--disable-dev-shm-usage',
+                '--single-process'
             ],
-            // Explicitly tell Puppeteer where to find Chromium.
-            // The 'jontewks/puppeteer-heroku-buildpack' sets this environment variable.
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
-                // Fallback for local development if PUPPETEER_EXECUTABLE_PATH isn't set,
-                // or a general Linux path if the buildpack's env var somehow isn't propagated
-                || (process.platform === 'win32' ? undefined : '/usr/bin/google-chrome-stable')
         });
-        console.log('[Puppeteer] Browser launched successfully!'); // Added for debugging
-        // --- END MODIFIED PUPPETEER LAUNCH CONFIGURATION ---
+        console.log('[Puppeteer] Browser launched successfully!');
 
         const page = await browser.newPage();
         await page.setContent(certificateHtml, { waitUntil: 'networkidle0' });
@@ -142,7 +124,6 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         });
         await browser.close();
 
-        // Ensure the directory exists before writing the file
         const certificatesDir = path.join(__dirname, '../Uploads/certificates');
         if (!fs.existsSync(certificatesDir)) {
             fs.mkdirSync(certificatesDir, { recursive: true });
@@ -150,7 +131,6 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         const pdfPath = path.join(certificatesDir, `certificate_${user._id}.pdf`);
         fs.writeFileSync(pdfPath, pdfBuffer);
 
-        // Send email with certificate
         const emailSubject = 'Congratulations! Your World Pest Day Certificate';
         const emailHtml = `
             <h1>Congratulations, ${user.name}!</h1>
@@ -168,21 +148,16 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
 
         await sendCertificateEmail(user.email, emailSubject, emailHtml, attachments);
 
-        fs.unlinkSync(pdfPath); // Clean up temporary PDF after sending
+        fs.unlinkSync(pdfPath);
 
-        // Respond with the appropriate message
         res.status(200).json({ message: message });
 
     } catch (err) {
         console.error('Error approving user:', err);
-        // Include the actual error message in the response for better debugging (in dev)
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 
-// --- Admin Dashboard Route ---
-// @route   GET /api/admin/dashboard
-// @desc    Protected route to test auth
 router.get('/dashboard', authAdmin, (req, res) => {
     res.json({ message: `Welcome admin ${req.admin.email}` });
 });
