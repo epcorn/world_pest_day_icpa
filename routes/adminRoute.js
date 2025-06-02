@@ -98,7 +98,6 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         );
 
         console.log('[Puppeteer] Attempting to launch browser...');
-        // We're keeping this debug log for now, it's harmless and helps confirm the env var status.
         console.log('DEBUG: PUPPETEER_EXECUTABLE_PATH is:', process.env.PUPPETEER_EXECUTABLE_PATH);
 
         const browser = await puppeteer.launch({
@@ -110,8 +109,8 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--disable-dev-shm-usage',
                 '--single-process'
             ],
-            // Set executablePath directly as PUPPETEER_EXECUTABLE_PATH is undefined
-            executablePath: '/usr/bin/google-chrome'
+            // THIS IS THE CRITICAL LINE. IT IS NOW SET TO THE CORRECT PATH.
+            executablePath: '/usr/bin/chromium-browser'
         });
         console.log('[Puppeteer] Browser launched successfully!');
 
