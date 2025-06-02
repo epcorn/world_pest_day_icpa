@@ -317,6 +317,7 @@ export default function LandingPage() {
                                             required
                                         >
                                             <option value="Mr">Mr</option>
+                                            <option value="Mrs">Mrs</option>
                                             <option value="Ms">Ms</option>
                                             <option value="Dr">Dr</option>
                                             <option value="Dr.HC">Dr.HC</option>

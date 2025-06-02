@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    annotation: { type: String, enum: ['Mr', 'Ms', 'Dr', 'Dr.HC'], default: 'Mr' },
+    annotation: { type: String, enum: ['Mr','Mrs','Ms', 'Dr', 'Dr.HC'], default: 'Mr' },
     name: { type: String, required: true },
     companyName: { type: String },
     email: { type: String, required: true, unique: true },
