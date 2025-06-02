@@ -72,9 +72,6 @@ router.get('/submissions', authAdmin, async (req, res) => {
     }
 });
 
----
-
-**Crucially, this is the modified section for certificate approval:**
 
 /// @route   POST /api/admin/approve/:userId
 // @desc    Approve a user's video, generate certificate, and send email (allows re-sending)
