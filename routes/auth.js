@@ -163,7 +163,7 @@ router.get('/verify', async (req, res) => {
         user.isVerified = true;
         await user.save();
 
-        return res.send('Email verified successfully. You may now upload your video.');
+        return res.send('Email verified successfully.');
     } catch (err) {
         console.error('Verification Error:', err);
         if (err.name === 'TokenExpiredError') {
