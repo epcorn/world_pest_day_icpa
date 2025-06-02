@@ -98,6 +98,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         );
 
         console.log('[Puppeteer] Attempting to launch browser...');
+        // This log helps confirm if CHROME_BIN is being set by the buildpack.
         console.log('DEBUG: PUPPETEER_EXECUTABLE_PATH is:', process.env.PUPPETEER_EXECUTABLE_PATH);
 
         const browser = await puppeteer.launch({
@@ -109,8 +110,8 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--disable-dev-shm-usage',
                 '--single-process'
             ],
-            // THIS IS THE CRITICAL LINE. IT IS NOW SET TO THE CORRECT PATH.
-            executablePath: '/usr/bin/chromium-browser'
+            // THIS IS THE CRITICAL LINE. Using process.env.CHROME_BIN from the Heroku buildpack.
+            executablePath: process.env.CHROME_BIN || puppeteer.executablePath()
         });
         console.log('[Puppeteer] Browser launched successfully!');
 
