@@ -14,7 +14,6 @@ const adminRoutes = require('./routes/adminRoute'); // Assuming admin.js handles
 
 const app = express();
 
-// --- REVISED CORS Configuration for Generic Use ---
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:8080',
