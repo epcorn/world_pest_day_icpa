@@ -9,7 +9,7 @@ module.exports = function generateCertificateHTML(annotation, name, companyName,
     year: 'numeric',
   });
 
-  // Log the values being used
+  // Log the values being used (for debugging)
   console.log('Generating certificate with:', {
     annotation: safeAnnotation,
     name: safeName,
@@ -17,14 +17,15 @@ module.exports = function generateCertificateHTML(annotation, name, companyName,
     issueDate: safeIssueDate,
   });
 
-  // Define image URLs
-  const logoUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_LOGO.jpg';
-  const presidentSigUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_PRESIDENT_SIGN.png';
-  const vpSigUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_VP_SIGN.png';
-  const secretarySigUrl = 'http://localhost:5000/uploads/certificates/static/IPCA_SECRETARY_SIGN.png';
+  // --- UPDATED: Using your Cloudinary URLs for static assets ---
+  const vpSigUrl = 'https://res.cloudinary.com/dbzucdgf0/image/upload/v1748840827/IPCA_VP_SIGN_chsync.png';
+  const secretarySigUrl = 'https://res.cloudinary.com/dbzucdgf0/image/upload/v1748840804/IPCA_SECRETARY_SIGN_qr62py.png';
+  const presidentSigUrl = 'https://res.cloudinary.com/dbzucdgf0/image/upload/v1748840796/IPCA_PRESIDENT_SIGN_tnotye.png';
+  const logoUrl = 'https://res.cloudinary.com/dbzucdgf0/image/upload/v1748840762/IPCA_LOGO_ckfv6q.jpg';
+  // -----------------------------------------------------------
 
   // Log image URLs for debugging
-  console.log('Image URLs:', {
+  console.log('Image URLs (Cloudinary):', {
     logoUrl,
     presidentSigUrl,
     vpSigUrl,

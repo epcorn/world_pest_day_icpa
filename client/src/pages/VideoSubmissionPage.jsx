@@ -25,7 +25,7 @@ export default function VideoSubmissionPage() {
                 }
                 const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/video?email=${encodeURIComponent(email)}`);
                 setUserVideo(res.data);
-                console.log(res.data);
+                console.log(res.data); // This will now show the Cloudinary URL and publicId
             } catch (err) {
                 console.error('Error fetching user video:', err.response?.data || err.message);
                 setError('Failed to load your video data. Please refresh or try again later. 🚧');
@@ -55,7 +55,7 @@ export default function VideoSubmissionPage() {
 
         setUploading(true);
         const formData = new FormData();
-        formData.append('video', videoFile);
+        formData.append('video', videoFile); // 'video' matches the field name in multer setup on backend
 
         try {
             const email = localStorage.getItem('userEmail');
@@ -63,10 +63,11 @@ export default function VideoSubmissionPage() {
                 setError('No user email found. Please register again. 😞');
                 return;
             }
+            // Send the video file to your backend /api/upload endpoint
             const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/upload?email=${encodeURIComponent(email)}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            setUserVideo(res.data);
+            setUserVideo(res.data); // Backend will send back the user object with new Cloudinary videoUrl and publicId
             setVideoFile(null); // Clear selected file after successful upload
             alert('Video uploaded successfully! We\'ll review it soon. 🎉'); // Use a more exciting alert
         } catch (err) {
@@ -238,7 +239,7 @@ export default function VideoSubmissionPage() {
                             <div className="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-8">
                                 <div className="rounded-lg overflow-hidden border border-gray-300 shadow-md w-full md:w-1/2 flex-shrink-0">
                                     <video
-                                        src={`${import.meta.env.VITE_APP_API_BASE_URL}${userVideo.videoUrl}`}
+                                        src={userVideo.videoUrl} // MODIFIED LINE HERE
                                         controls
                                         className="w-full h-auto object-cover"
                                         title="Your Submitted Video"

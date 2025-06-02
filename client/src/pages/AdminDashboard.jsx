@@ -17,7 +17,6 @@ export default function AdminDashboard() {
           navigate("/admin/login");
           throw new Error("No admin token found. Please log in.");
         }
-        // MODIFIED: Use VITE_APP_API_BASE_URL
         const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/admin/submissions`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,7 +47,6 @@ export default function AdminDashboard() {
         navigate("/admin/login");
         return;
       }
-      // MODIFIED: Use VITE_APP_API_BASE_URL
       const res = await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/admin/approve/${userId}`,
         {},
@@ -61,10 +59,15 @@ export default function AdminDashboard() {
       // Update the submission status in the local state
       setSubmissions((prev) =>
         prev.map((user) =>
-          user._id === userId ? { ...user, verified: true } : user
+          user._id === userId
+            ? { ...user, isApproved: true, certificateUrl: res.data.certificateUrl } // Capture the certificate URL
+            : user
         )
       );
-      alert(res.data.message || "User approved and certificate sent successfully.");
+      alert(
+        res.data.message ||
+          "User approved and certificate generation initiated. Certificate will be available for download."
+      );
     } catch (err) {
       console.error("Error approving user:", err);
       alert(err.response?.data?.message || "Failed to approve the user. Please try again.");
@@ -77,17 +80,16 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDownload = (videoUrl, username) => {
+  const handleDownloadVideo = (videoUrl, username) => {
     if (!videoUrl) {
       alert("No video available for download.");
       return;
     }
-    // MODIFIED: Use VITE_APP_API_BASE_URL
-    const fullUrl = `${import.meta.env.VITE_APP_API_BASE_URL}${videoUrl}`;
-    console.log("Attempting to download video from:", fullUrl);
+    // Cloudinary URLs are directly downloadable.
+    console.log("Attempting to download video from:", videoUrl);
 
     const link = document.createElement("a");
-    link.href = fullUrl;
+    link.href = videoUrl; // Use the Cloudinary URL directly
     link.download = `${username}_video.mp4`;
     document.body.appendChild(link);
     link.click();
@@ -98,6 +100,19 @@ export default function AdminDashboard() {
     console.error(`Video failed to load for ${username}:`, e);
     console.error(`Attempted URL: ${e.target.src}`);
     alert(`Failed to load video for ${username}. Check the console for details.`);
+  };
+
+  const handleDownloadCertificate = (certificateUrl, username) => {
+    if (!certificateUrl) {
+      alert("No certificate available for download.");
+      return;
+    }
+    const link = document.createElement("a");
+    link.href = certificateUrl; // This should be the direct URL to the static certificate
+    link.download = `${username}_certificate.png`; // Or .pdf, depending on your generation
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleLogout = () => {
@@ -128,36 +143,48 @@ export default function AdminDashboard() {
               submissions.map((submission) => {
                 const {
                   _id,
-                  username = "N/A",
-                  email = "N/A",
+                  name = "N/A",
                   companyName = "N/A",
+                  email = "N/A",
+                  mobile = "N/A",
                   videoUrl = "",
-                  verified = false,
+                  isVerified = false, // Email verification status
+                  isApproved = false, // Video approval status
+                  certificateUrl = "", // Destructure certificateUrl
                 } = submission;
 
-                console.log(`Rendering Submission ${_id}:`, { username, email, videoUrl, verified });
+                console.log(`Rendering Submission ${_id}:`, { name, email, videoUrl, isVerified, isApproved, certificateUrl });
 
-                // MODIFIED: Use VITE_APP_API_BASE_URL for video source
-                const fullVideoUrl = videoUrl ? `${import.meta.env.VITE_APP_API_BASE_URL}${videoUrl}` : '';
+                const fullVideoUrl = videoUrl; // No need for base URL, it's a direct Cloudinary URL
 
                 return (
                   <div
                     key={_id}
                     className="bg-white p-6 rounded-lg shadow-lg flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6"
                   >
-                    <div className="flex-1 w-full">
+                    <div className="flex-1 w-full md:w-1/2"> {/* Adjusted width for better layout */}
                       <div className="flex items-center space-x-3 mb-3">
-                        <h2 className="font-bold text-xl text-gray-900">{username}</h2>
+                        <h2 className="font-bold text-xl text-gray-900">{name}</h2>
+                        {/* Video approval status */}
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            verified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                            isApproved ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
-                          {verified ? "Verified" : "Not Verified"}
+                          {isApproved ? "Video Approved" : "Video Pending"}
+                        </span>
+                        {/* Email verification status */}
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            isVerified ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                            {isVerified ? "Email Verified" : "Email Unverified"}
                         </span>
                       </div>
-                      <p className="text-gray-600 mb-4 text-md">Email: {email}</p>
-                      <p className="text-gray-600 mb-4 text-md">Company: {companyName}</p>
+                      <p className="text-gray-600 mb-2 text-md">Email: {email}</p>
+                      <p className="text-gray-600 mb-2 text-md">Company: {companyName}</p>
+                      <p className="text-gray-600 mb-4 text-md">Mobile: {mobile}</p>
 
                       {fullVideoUrl ? (
                         <div className="mt-4">
@@ -165,7 +192,7 @@ export default function AdminDashboard() {
                             src={fullVideoUrl}
                             controls
                             className="rounded-lg w-full max-w-md border border-gray-300"
-                            onError={(e) => handleVideoError(e, username)}
+                            onError={(e) => handleVideoError(e, name)}
                             type="video/mp4"
                           >
                             Your browser does not support the video tag.
@@ -182,22 +209,30 @@ export default function AdminDashboard() {
                     <div className="md:ml-auto self-stretch md:self-center flex flex-col space-y-3 w-full md:w-auto">
                       <button
                         onClick={() => handleApprove(_id)}
-                        //disabled={approving[_id] || verified} // Disable if approving or already verified
+                        disabled={approving[_id]} // Only disable while approving
                         className={`w-full md:w-40 px-5 py-2 rounded-md shadow-sm transition duration-300 ease-in-out font-semibold ${
-                          approving[_id] || verified
-                            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                            : "bg-blue-600 text-white hover:bg-blue-700"
+                          approving[_id]
+                            ? "bg-gray-400 text-gray-700 cursor-not-allowed" // Disabled (in-progress) state
+                            : "bg-blue-600 text-white hover:bg-blue-700" // Active button color (Approve or Approve again)
                         }`}
                       >
-                        {approving[_id] ? "Approving..." : verified ? "Approved" : "Approve"}
+                        {approving[_id] ? "Approving..." : isApproved ? "Approve again" : "Approve"} {/* <--- Changed Text */}
                       </button>
 
                       {fullVideoUrl && (
                         <button
-                          onClick={() => handleDownload(videoUrl, username)}
+                          onClick={() => handleDownloadVideo(videoUrl, name)}
                           className="w-full md:w-40 bg-green-600 text-white px-5 py-2 rounded-md shadow-sm hover:bg-green-700 transition duration-300 ease-in-out font-semibold"
                         >
                           Download Video
+                        </button>
+                      )}
+                      {isApproved && certificateUrl && (
+                        <button
+                          onClick={() => handleDownloadCertificate(certificateUrl, name)}
+                          className="w-full md:w-40 bg-purple-600 text-white px-5 py-2 rounded-md shadow-sm hover:bg-purple-700 transition duration-300 ease-in-out font-semibold"
+                        >
+                          Download Certificate
                         </button>
                       )}
                     </div>
