@@ -20,6 +20,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:8080',
   'https://world-pest-day-client.onrender.com', // Your live Render frontend URL
+  'https://wpd.webconnectipca.com',
 ];
 
 const corsOptions = {
