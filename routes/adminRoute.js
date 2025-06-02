@@ -1,10 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const authAdmin = require('../Middleware/adminAuth'); // Assuming this is correct
+const authAdmin = require('../Middleware/adminAuth'); // Assuming this path is correct
 const Admin = require('../models/Admin');
-const User = require('../models/User'); // Ensure this path is correct
-const puppeteer = require('puppeteer');
+const User = require('../models/User'); // Ensure this path is correct for your User model
+const puppeteer = require('puppeteer'); // Make sure puppeteer is installed: npm install puppeteer
 const fs = require('fs');
 const path = require('path');
 const generateCertificateHTML = require('./certificateTemplate'); // Assuming this path is correct
@@ -12,6 +12,7 @@ const sendCertificateEmail = require('../utils/sendCertificateEmail'); // Assumi
 
 const router = express.Router();
 
+// --- Admin Login Route ---
 // @route   POST /api/admin/login
 // @desc    Admin login
 router.post('/login', async (req, res) => {
@@ -44,24 +45,24 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// --- Get Submissions Route ---
 // @route   GET /api/admin/submissions
 // @desc    Get all users who uploaded a video
 router.get('/submissions', authAdmin, async (req, res) => {
     try {
         const usersWithVideos = await User.find({ videoUrl: { $ne: null } })
-            // IMPORTANT: Select 'isApproved' along with other fields
             .select('name email companyName mobile videoUrl isVerified isApproved annotation')
             .sort({ videoUploadedAt: -1 });
 
         const submissions = usersWithVideos.map(user => ({
             _id: user._id,
-            name: user.name, // Use 'name' for consistency
+            name: user.name,
             email: user.email,
             companyName: user.companyName,
-            mobile: user.mobile, // Include mobile
+            mobile: user.mobile,
             videoUrl: user.videoUrl,
-            isVerified: user.isVerified, // Email verification status
-            isApproved: user.isApproved // <--- IMPORTANT: Send new approval status
+            isVerified: user.isVerified,
+            isApproved: user.isApproved
         }));
 
         res.status(200).json(submissions);
@@ -71,6 +72,10 @@ router.get('/submissions', authAdmin, async (req, res) => {
     }
 });
 
+---
+
+**Crucially, this is the modified section for certificate approval:**
+
 /// @route   POST /api/admin/approve/:userId
 // @desc    Approve a user's video, generate certificate, and send email (allows re-sending)
 router.post('/approve/:userId', authAdmin, async (req, res) => {
@@ -78,15 +83,9 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         const user = await User.findById(req.params.userId);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        // --- IMPORTANT CHANGE HERE ---
-        // Instead of returning an error if already approved,
-        // we'll proceed to re-send the certificate.
-        // We still ensure isApproved is true, and update timestamps if it was just approved.
-
-        let message = 'Certificate re-sent successfully.'; // Default message for re-send
+        let message = 'Certificate re-sent successfully.';
 
         if (!user.isApproved) {
-            // Only update approval status and timestamps if not already approved
             user.isApproved = true;
             user.approvedBy = req.admin._id; // Assuming `req.admin` is set by your auth middleware
             user.approvedAt = new Date(); // Update the approval timestamp
@@ -95,7 +94,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
             message = 'User video approved and certificate emailed successfully.'; // Message for initial approval
         }
 
-        // --- Certificate Generation and Email Sending (Existing logic - now always runs) ---
+        // --- Certificate Generation and Email Sending ---
         // Format current date (e.g., "29 May 2025")
         const issueDate = new Date().toLocaleDateString('en-US', {
             day: 'numeric',
@@ -113,8 +112,28 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
             issueDate
         );
 
-        // Launch Puppeteer to generate PDF
-        const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+        // --- MODIFIED PUPPETEER LAUNCH CONFIGURATION ---
+        // This is the crucial part to fix "Could not find Chrome" on Heroku
+        console.log('[Puppeteer] Attempting to launch browser...'); // Added for debugging
+        const browser = await puppeteer.launch({
+            headless: true, // Set to 'new' for latest Puppeteer or 'true' for older versions
+            args: [
+                '--no-sandbox',                 // ESSENTIAL for Heroku's containerized environment
+                '--disable-setuid-sandbox',     // ESSENTIAL for Heroku
+                '--disable-gpu',                // Recommended for headless environments
+                '--disable-dev-shm-usage',      // Recommended for memory issues
+                '--single-process'              // Recommended for memory/performance on Heroku
+            ],
+            // Explicitly tell Puppeteer where to find Chromium.
+            // The 'jontewks/puppeteer-heroku-buildpack' sets this environment variable.
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+                // Fallback for local development if PUPPETEER_EXECUTABLE_PATH isn't set,
+                // or a general Linux path if the buildpack's env var somehow isn't propagated
+                || (process.platform === 'win32' ? undefined : '/usr/bin/google-chrome-stable')
+        });
+        console.log('[Puppeteer] Browser launched successfully!'); // Added for debugging
+        // --- END MODIFIED PUPPETEER LAUNCH CONFIGURATION ---
+
         const page = await browser.newPage();
         await page.setContent(certificateHtml, { waitUntil: 'networkidle0' });
         await page.emulateMediaType('print');
@@ -126,8 +145,12 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         });
         await browser.close();
 
-        // Save PDF temporarily
-        const pdfPath = path.join(__dirname, '../Uploads/certificates', `certificate_${user._id}.pdf`);
+        // Ensure the directory exists before writing the file
+        const certificatesDir = path.join(__dirname, '../Uploads/certificates');
+        if (!fs.existsSync(certificatesDir)) {
+            fs.mkdirSync(certificatesDir, { recursive: true });
+        }
+        const pdfPath = path.join(certificatesDir, `certificate_${user._id}.pdf`);
         fs.writeFileSync(pdfPath, pdfBuffer);
 
         // Send email with certificate
@@ -148,18 +171,19 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
 
         await sendCertificateEmail(user.email, emailSubject, emailHtml, attachments);
 
-        // Clean up temporary PDF
-        fs.unlinkSync(pdfPath);
+        fs.unlinkSync(pdfPath); // Clean up temporary PDF after sending
 
         // Respond with the appropriate message
-        res.status(200).json({ message: message }); // <--- Send the dynamically set message
+        res.status(200).json({ message: message });
 
     } catch (err) {
         console.error('Error approving user:', err);
+        // Include the actual error message in the response for better debugging (in dev)
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 
+// --- Admin Dashboard Route ---
 // @route   GET /api/admin/dashboard
 // @desc    Protected route to test auth
 router.get('/dashboard', authAdmin, (req, res) => {
