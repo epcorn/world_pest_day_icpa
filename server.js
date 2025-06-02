@@ -17,7 +17,6 @@ const app = express();
 // --- REVISED CORS Configuration for Generic Use ---
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost:3000',
   'http://localhost:8080',
   'https://world-pest-day-client.onrender.com', // Your live Render frontend URL
   'https://wpd.webconnectipca.com',
