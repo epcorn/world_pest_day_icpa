@@ -98,8 +98,8 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         );
 
         console.log('[Puppeteer] Attempting to launch browser...');
-        // This log helps confirm if CHROME_BIN is being set by the buildpack.
-        console.log('DEBUG: PUPPETEER_EXECUTABLE_PATH is:', process.env.PUPPETEER_EXECUTABLE_PATH);
+        // This log helps confirm if GOOGLE_CHROME_BIN is being set by the buildpack.
+        console.log('DEBUG: GOOGLE_CHROME_BIN is:', process.env.GOOGLE_CHROME_BIN);
 
         const browser = await puppeteer.launch({
             headless: true,
@@ -110,8 +110,8 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--disable-dev-shm-usage',
                 '--single-process'
             ],
-            // THIS IS THE CRITICAL LINE. Using process.env.CHROME_BIN from the Heroku buildpack.
-            executablePath: process.env.CHROME_BIN || puppeteer.executablePath()
+            // THIS IS THE CRITICAL LINE. Using process.env.GOOGLE_CHROME_BIN from the Heroku buildpack.
+            executablePath: process.env.GOOGLE_CHROME_BIN
         });
         console.log('[Puppeteer] Browser launched successfully!');
 
