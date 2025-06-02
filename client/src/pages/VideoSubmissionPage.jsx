@@ -272,7 +272,7 @@ export default function VideoSubmissionPage() {
 
                 {/* Footer */}
                 <footer className="mt-16 text-center text-gray-600 text-sm opacity-80">
-                    &copy; {new Date().getFullYear()} World Pest Day. All rights reserved.
+                    &copy; {new Date().getFullYear()} Indian Pest Control Association. All rights reserved.
                 </footer>
             </div>
 
