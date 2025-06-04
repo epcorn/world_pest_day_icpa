@@ -212,7 +212,7 @@ const LandingPage = () => {
         {/* Overlay and Text */}
         <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white drop-shadow-lg animate-scale-in">
-            Submit Your Videos & Win Amazing Prizes!
+            Submit Your Video & Win Amazing Prizes!
           </h2>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl mt-2 sm:mt-4 text-white max-w-2xl animate-fade-in delay-200">
             Showcase your contributions to public health and earn recognition.
