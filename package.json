@@ -13,6 +13,9 @@
   "engines": {
     "node": "20.x"
   },
+    "config": {
+    "puppeteer_skip_chromium_download": true
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",

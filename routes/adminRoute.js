@@ -111,7 +111,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--single-process'
             ],
             // THIS IS THE CRITICAL LINE. Using process.env.GOOGLE_CHROME_BIN from the Heroku buildpack.
-            executablePath: process.env.GOOGLE_CHROME_BIN
+            executablePath: process.env.CHROME_BIN
         });
         console.log('[Puppeteer] Browser launched successfully!');
 
