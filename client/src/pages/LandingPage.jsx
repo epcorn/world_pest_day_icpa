@@ -440,6 +440,10 @@ const LandingPage = () => {
         )}
       </div>
 
+      <div className="relative z-10 mt-6 text-center text-gray-700 text-base sm:text-lg px-4">
+        For any query contact <a href="mailto:webconnectipca@gmail.com" className="text-blue-600 hover:underline font-semibold">webconnectipca@gmail.com</a>
+      </div>
+
       <div className="relative z-10 mt-12 sm:mt-16 text-gray-600 text-xs sm:text-sm opacity-80 text-center px-4">
         © {new Date().getFullYear()} Indian Pest Control Association. All rights reserved.
       </div>
