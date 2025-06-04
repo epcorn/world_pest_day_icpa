@@ -99,21 +99,21 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         );
 
         console.log('[Puppeteer] Attempting to launch browser...');
-        // This log should now correctly show the CHROME_BIN value
+        // This log should now correctly show the CHROME_BIN value (if it's being set correctly)
         console.log('DEBUG: CHROME_BIN is:', process.env.CHROME_BIN);
         console.log('DEBUG: Node.js version:', process.version);
 
 
         browser = await puppeteer.launch({
-            headless: true, // Use 'new' if you encounter issues with 'true' on newer Puppeteer versions
+            headless: true, // Use 'new' for Puppeteer v21+ for better performance in headless mode
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-gpu',
-                '--disable-dev-shm-usage',
-                '--single-process',
-                '--no-zygote',
-                '--disable-web-security', // Added for potential rendering issues
+                '--disable-dev-shm-usage', // Helps with memory on Heroku
+                '--single-process', // Important for Heroku's single dyno architecture
+                '--no-zygote', // Prevents creation of a new process for the browser
+                '--disable-web-security', // Can help with rendering local files or specific content
                 '--no-first-run',
                 '--no-default-browser-check',
                 '--disable-translate',
@@ -123,18 +123,47 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--metrics-recording-only',
                 '--mute-audio',
                 '--no-startup-window',
-                // '--font-render-hinting=none', // Uncomment if font rendering causes crashes
+                '--disable-features=site-per-process', // Can sometimes help with memory
+                '--disable-setuid-sandbox', // Redundant but harmless
+                '--disable-speech-api',
+                '--disable-background-networking',
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-breakpad',
+                '--disable-client-side-phishing-detection',
+                '--disable-component-update',
+                '--disable-default-apps',
+                '--disable-hang-monitor',
+                '--disable-ipc-flooding-detection',
+                '--disable-notifications',
+                '--disable-offer-store-unmasked-wallet-cards',
+                '--disable-popup-blocking',
+                '--disable-print-preview', // Might conflict with PDF, but sometimes helps if not needed
+                '--disable-prompt-on-repost',
+                '--disable-renderer-backgrounding',
+                '--disable-sync-app-list',
+                '--enable-automation',
+                '--force-color-profile=srgb',
+                '--metrics-recording-only',
+                '--no-default-browser-check',
+                '--no-first-run',
+                '--password-store=basic',
+                '--use-mock-keychain',
+                // '--font-render-hinting=none', // Uncomment if font rendering causes crashes, but can affect quality
             ],
-            executablePath: process.env.CHROME_BIN
+            executablePath: process.env.CHROME_BIN // This is the correct env var from the buildpack
         });
         console.log('[Puppeteer] Browser launched successfully!');
 
         const page = await browser.newPage();
         // Set a default timeout for navigation and other page operations
-        page.setDefaultNavigationTimeout(60000); // 60 seconds
-        page.setDefaultTimeout(60000); // 60 seconds for other operations
+        page.setDefaultNavigationTimeout(90000); // Increased to 90 seconds
+        page.setDefaultTimeout(90000); // Increased to 90 seconds for other operations
 
-        await page.setContent(certificateHtml, { waitUntil: 'networkidle0' });
+        // Use 'domcontentloaded' or 'load' for potentially faster rendering if 'networkidle0' is too slow
+        // 'networkidle0' is generally good, but if assets are slow, it can cause issues.
+        await page.setContent(certificateHtml, { waitUntil: 'domcontentloaded' }); // Changed to domcontentloaded
+
         await page.emulateMediaType('print');
 
         const pdfBuffer = await page.pdf({
@@ -142,7 +171,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
             landscape: true,
             printBackground: true,
             margin: { top: '0', right: '0', bottom: '0', left: '0' },
-            timeout: 60000 // Increased timeout for PDF generation to 60 seconds
+            timeout: 90000 // Increased timeout for PDF generation to 90 seconds
         });
         
         // Close the browser immediately after PDF generation
