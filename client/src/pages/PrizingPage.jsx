@@ -45,7 +45,7 @@ const PrizingPage = () => {
             title="Certificate of Participation from IPCA"
             description="Every participant will receive a Certificate of Participation from the Indian Pest Control Association (IPCA) to acknowledge their valuable contribution."
             icon={FileText}
-            color="text-indigo-600" // New color for the new prize
+            color="text-indigo-600"
           />
         </div>
 
@@ -88,7 +88,8 @@ const TopicCard = ({ title, icon: Icon }) => {
 
 // Helper component for Reward Items
 const RewardItem = ({ title, description, icon: Icon, color }) => (
-  <div className="flex flex-col sm:flex-row items-center sm:items-start bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200 text-center sm:text-left">
+  <div className="flex flex-col sm:flex-row items-center sm:items-start bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200 text-center sm:text-left
+              transition-all duration-300 ease-in-out  hover:scale-[1.02] hover:shadow-lg cursor-pointer"> {/* Added animation classes */}
     <Icon size={28} className={`mb-2 sm:mb-0 sm:mr-4 flex-shrink-0 ${color}`} />
     <div>
       <h4 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">{title}</h4>
