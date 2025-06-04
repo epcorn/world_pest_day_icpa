@@ -45,7 +45,7 @@ const PrizingPage = () => {
 
         {/* Sliding Image Banner Section */}
         <div className="mt-10 sm:mt-12">
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 mb-4 text-center">A glimpse of this Year</h3>
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 mb-4 text-center">A glimpse of this Year...</h3>
           <div className="overflow-x-auto whitespace-nowrap scrollbar-hide flex gap-4 sm:gap-6 px-2 py-4"> {/* Adjusted gap and added py-4 */}
             {[
               "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748863391/ChatGPT_Image_Jun_2_2025_04_52_08_PM_ezkvai.png",
