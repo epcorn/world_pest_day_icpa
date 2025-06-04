@@ -59,8 +59,9 @@ const LandingPage = () => {
       { x: '100vw', rotateY: 90, opacity: 0 },
       { x: 0, rotateY: 0, opacity: 1, duration: 1.5, ease: 'power2.out', delay: 0.5 }
     );
+    // Apply main-content-fade animation to the slogan only
     gsap.fromTo(
-      '.main-content-fade',
+      '.main-slogan-fade', // Changed selector
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 1, delay: 1.5, ease: 'power2.out' }
     );
@@ -186,10 +187,10 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-50 to-blue-100 overflow-hidden">
+    <div className="relative min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-blue-100 overflow-hidden">
       {/* Animated Banner for Prizing with Sliding Images */}
       <div
-        className="relative w-full max-w-6xl h-96 bg-cover bg-center rounded-2xl shadow-xl overflow-hidden flex items-center justify-center animate-fade-in-up mb-12"
+        className="relative w-full max-w-6xl h-64 md:h-80 lg:h-96 bg-cover bg-center rounded-2xl shadow-xl overflow-hidden flex items-center justify-center animate-fade-in-up mb-8 md:mb-12"
       >
         {/* Sliding Images */}
         <div className="absolute inset-0">
@@ -209,35 +210,39 @@ const LandingPage = () => {
           ))}
         </div>
         {/* Overlay and Text */}
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center p-8">
-          <h2 className="text-white text-5xl md:text-6xl font-extrabold text-center drop-shadow-lg animate-scale-in">
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white drop-shadow-lg animate-scale-in">
             Submit Your Videos & Win Amazing Prizes!
           </h2>
-          <p className="text-white text-xl md:text-2xl mt-4 text-center max-w-2xl animate-fade-in delay-200">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mt-2 sm:mt-4 text-white max-w-2xl animate-fade-in delay-200">
             Showcase your contributions to public health and earn recognition.
           </p>
           <Link
             to="/prizing"
-            className="mt-8 px-8 py-3 bg-yellow-400 text-blue-900 font-bold text-xl rounded-full shadow-lg hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+            className="mt-4 sm:mt-8 px-6 py-2 sm:px-8 sm:py-3 bg-yellow-400 text-blue-900 font-bold text-base sm:text-xl rounded-full shadow-lg hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300"
           >
             View Prizes & Recognition
           </Link>
         </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-4xl text-center mb-10 md:mb-16">
-        <h1 className="text-7xl md:text-8xl font-extrabold text-gray-900 leading-tight flex flex-col sm:flex-row justify-center items-center space-x-0 sm:space-x-8">
-          {/* IPCA Logo added here */}
-          <img src={WorldPestDay} alt="IPCA Logo" className="h-30 w-30 rounded-full border-4 border-blue-200 shadow-lg flex-shrink-0 mr-4" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/100x100/003366/FFFFFF?text=IPCA"; }} />
+      <div className="relative z-10 w-full max-w-4xl text-center mb-8 md:mb-16 px-4">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-gray-900 leading-tight flex flex-col sm:flex-row justify-center items-center space-x-0 sm:space-x-8">
+          <img
+            src={WorldPestDay}
+            alt="IPCA Logo"
+            className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 rounded-full border-4 border-blue-200 shadow-lg flex-shrink-0 mb-4 sm:mb-0 sm:mr-4"
+            onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/100x100/003366/FFFFFF?text=IPCA"; }}
+          />
           <span className="worlds-text text-green-700 drop-shadow-lg mb-2 sm:mb-0">World</span>
-          <span className="pestday-text text-blue-700 drop-shadow-lg">Pest Day</span>
+          <span className="pestday-text text-blue-700 drop-shadow-lg">Pest Day 2025</span>
         </h1>
-        <p className="text-xl md:text-3xl text-gray-700 font-semibold mt-4 tracking-wide main-content-fade">
+        <p className="text-lg md:text-xl lg:text-3xl text-gray-700 font-semibold mt-4 tracking-wide main-slogan-fade px-2"> {/* Changed class here */}
           Come celebrate with us and win exciting rewards!
         </p>
       </div>
 
-      <div className="relative z-10 main-content-fade bg-white bg-opacity-95 p-8 md:p-12 rounded-xl shadow-2xl ring-4 ring-green-300 ring-opacity-50 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out w-full max-w-md">
+      <div className="relative z-10 bg-white bg-opacity-95 p-6 md:p-12 rounded-xl shadow-2xl ring-4 ring-green-300 ring-opacity-50 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out w-11/12 max-w-md mx-auto">
         {showCustomAlert && (
           <div className="bg-blue-100 text-blue-700 p-3 rounded-lg text-center font-medium border border-blue-200 mb-6 animate-pulse-once">
             {customAlertMessage}
@@ -246,15 +251,15 @@ const LandingPage = () => {
 
         {existingUser ? (
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted Video</h2>
-            <div className="text-left space-y-2 text-lg text-gray-700">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted Video</h2>
+            <div className="text-left space-y-2 text-base sm:text-lg text-gray-700">
               <p><strong>Name:</strong> <span className="font-medium text-gray-900">{existingUser.name}</span></p>
               <p><strong>Company:</strong> <span className="font-medium text-gray-900">{existingUser.companyName || 'N/A'}</span></p>
               <p><strong>Mobile:</strong> <span className="font-medium text-gray-900">{existingUser.mobile}</span></p>
             </div>
             {existingUser.videoUrl ? (
               <>
-                <div className="mt-8 rounded-lg overflow-hidden border border-gray-300 shadow-md">
+                <div className="mt-6 sm:mt-8 rounded-lg overflow-hidden border border-gray-300 shadow-md">
                   <video
                     controls
                     src={existingUser.videoUrl}
@@ -262,10 +267,10 @@ const LandingPage = () => {
                   />
                 </div>
                 {existingUser.isApproved ? (
-                  <p className="mt-6 text-xl font-bold text-green-600">
+                  <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-green-600">
                     Your video has been approved! 🎉
                     {existingUser.approvedAt && (
-                      <span className="block text-lg font-medium text-green-700 mt-1">
+                      <span className="block text-sm sm:text-lg font-medium text-green-700 mt-1">
                         Approved on: {new Date(existingUser.approvedAt).toLocaleDateString('en-US', {
                           year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
                         })}
@@ -273,13 +278,13 @@ const LandingPage = () => {
                     )}
                   </p>
                 ) : (
-                  <p className="mt-6 text-xl font-bold text-yellow-600">
+                  <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-yellow-600">
                     Your video is pending approval.⏳
                   </p>
                 )}
               </>
             ) : (
-              <p className="mt-6 text-xl font-bold text-red-600">
+              <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-red-600">
                 No video submitted yet. Please submit your video!
                 <button
                   onClick={() => navigate('/video-submission')}
@@ -289,12 +294,12 @@ const LandingPage = () => {
                 </button>
               </p>
             )}
-            <p className={`mt-2 text-md font-semibold ${existingUser.isVerified ? 'text-blue-600' : 'text-red-600'}`}>
+            <p className={`mt-2 text-sm sm:text-md font-semibold ${existingUser.isVerified ? 'text-blue-600' : 'text-red-600'}`}>
               {existingUser.isVerified ? 'Email is verified.' : 'Email is not yet verified. Please check your inbox!'}
             </p>
             <button
               onClick={toggleStatusCheckForm}
-              className="mt-8 text-blue-600 hover:text-blue-800 font-semibold transition duration-200"
+              className="mt-6 sm:mt-8 text-blue-600 hover:text-blue-800 font-semibold transition duration-200"
             >
               Go Back / Register New
             </button>
@@ -302,33 +307,33 @@ const LandingPage = () => {
         ) : (
           <>
             {showStatusCheckForm ? (
-              <form onSubmit={handleSubmitStatusCheck} className="space-y-6">
-                <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+              <form onSubmit={handleSubmitStatusCheck} className="space-y-4 sm:space-y-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">
                   Check Video Status
                 </h2>
 
                 {statusCheckError && (
-                  <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 animate-pulse-once">
+                  <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 animate-pulse-once text-sm sm:text-base">
                     {statusCheckError}
                   </p>
                 )}
 
                 <div className="relative">
-                  <label htmlFor="statusCheckEmail" className="block text-gray-700 font-semibold mb-2">Email Address<span className="text-red-500">*</span></label>
+                  <label htmlFor="statusCheckEmail" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Email Address<span className="text-red-500">*</span></label>
                   <input
                     type="email"
                     id="statusCheckEmail"
                     name="statusCheckEmail"
                     value={statusCheckEmail}
                     onChange={handleStatusCheckChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900"
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900 text-sm sm:text-base"
                     required
                     placeholder="Enter your email..."
                   />
                 </div>
 
                 <div className="relative">
-                  <label htmlFor="statusCheckPasscode" className="block text-gray-700 font-semibold mb-2">6-Digit Passcode<span className="text-red-500">*</span></label>
+                  <label htmlFor="statusCheckPasscode" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">6-Digit Passcode<span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     id="statusCheckPasscode"
@@ -336,7 +341,7 @@ const LandingPage = () => {
                     value={statusCheckPasscode}
                     onChange={handleStatusCheckChange}
                     maxLength="6"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900"
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900 text-sm sm:text-base"
                     required
                     placeholder="Enter your 6-digit passcode..."
                   />
@@ -345,7 +350,7 @@ const LandingPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-3 rounded-lg font-bold text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${
+                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${
                     loading ? 'opacity-60 cursor-not-allowed' : ''
                   }`}
                 >
@@ -354,32 +359,32 @@ const LandingPage = () => {
                 <button
                   type="button"
                   onClick={toggleStatusCheckForm}
-                  className="w-full mt-4 text-blue-600 hover:text-blue-800 font-semibold transition duration-200"
+                  className="w-full mt-3 sm:mt-4 text-blue-600 hover:text-blue-800 font-semibold transition duration-200 text-sm sm:text-base"
                 >
                   Back to Registration
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleSubmitMainForm} className="space-y-6">
-                <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+              <form onSubmit={handleSubmitMainForm} className="space-y-4 sm:space-y-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">
                   Join the Celebration
                 </h2>
 
                 {mainFormError && (
-                  <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 animate-pulse-once">
+                  <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 animate-pulse-once text-sm sm:text-base">
                     {mainFormError}
                   </p>
                 )}
 
                 <div className="relative">
-                  <label htmlFor="annotation" className="block text-gray-700 font-semibold mb-2">Annotation</label>
+                  <label htmlFor="annotation" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Annotation</label>
                   <div className="relative">
                     <select
                       id="annotation"
                       name="annotation"
                       value={formData.annotation}
                       onChange={handleChange}
-                      className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-900 py-3 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 transition duration-200"
+                      className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-900 py-2 sm:py-3 px-3 sm:px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 transition duration-200 text-sm sm:text-base"
                       required
                     >
                       <option value="Mr">Mr</option>
@@ -390,13 +395,13 @@ const LandingPage = () => {
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9l4.57 4.57.707.707z"/></svg>
-                  </div>
+                    </div>
                   </div>
                 </div>
 
                 {['name', 'companyName', 'email', 'mobile'].map((field) => (
                   <div key={field} className="relative">
-                    <label htmlFor={field} className="block text-gray-700 font-semibold mb-2 capitalize">
+                    <label htmlFor={field} className="block text-gray-700 font-semibold mb-1 sm:mb-2 capitalize text-sm sm:text-base">
                       {field === 'companyName' ? 'Company Name' : field === 'mobile' ? 'Mobile Number' : field}
                       {field !== 'companyName' && <span className="text-red-500">*</span>}
                     </label>
@@ -406,7 +411,7 @@ const LandingPage = () => {
                       name={field}
                       value={formData[field]}
                       onChange={handleChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900"
+                      className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900 text-sm sm:text-base"
                       required={field !== 'companyName'}
                       placeholder={`Enter your ${field === 'companyName' ? 'company name' : field === 'mobile' ? 'mobile number' : field}...`}
                     />
@@ -416,7 +421,7 @@ const LandingPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-3 rounded-lg font-bold text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${
+                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${
                     loading ? 'opacity-60 cursor-not-allowed' : ''
                   }`}
                 >
@@ -425,7 +430,7 @@ const LandingPage = () => {
                 <button
                   type="button"
                   onClick={toggleStatusCheckForm}
-                  className="w-full mt-4 text-blue-600 hover:text-blue-800 font-semibold transition duration-200"
+                  className="w-full mt-3 sm:mt-4 text-blue-600 hover:text-blue-800 font-semibold transition duration-200 text-sm sm:text-base"
                 >
                   Already registered? Check the status of your video
                 </button>
@@ -435,7 +440,7 @@ const LandingPage = () => {
         )}
       </div>
 
-      <div className="relative z-10 mt-16 text-gray-600 text-sm opacity-80">
+      <div className="relative z-10 mt-12 sm:mt-16 text-gray-600 text-xs sm:text-sm opacity-80 text-center px-4">
         © {new Date().getFullYear()} Indian Pest Control Association. All rights reserved.
       </div>
 
