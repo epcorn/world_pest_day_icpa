@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const authAdmin = require('../Middleware/adminAuth');
 const Admin = require('../models/Admin');
 const User = require('../models/User');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core'); // CHANGED: Using puppeteer-core
 const fs = require('fs');
 const path = require('path');
 const generateCertificateHTML = require('./certificateTemplate');
@@ -105,7 +105,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
 
 
         browser = await puppeteer.launch({
-            headless: true, // Use 'new' for Puppeteer v21+ for better performance in headless mode
+            headless: 'new', // CHANGED: Using 'new' for modern headless mode
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -124,7 +124,6 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--mute-audio',
                 '--no-startup-window',
                 '--disable-features=site-per-process', // Can sometimes help with memory
-                '--disable-setuid-sandbox', // Redundant but harmless
                 '--disable-speech-api',
                 '--disable-background-networking',
                 '--disable-background-timer-throttling',
@@ -151,7 +150,8 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--use-mock-keychain',
                 // '--font-render-hinting=none', // Uncomment if font rendering causes crashes, but can affect quality
             ],
-            executablePath: process.env.CHROME_BIN // This is the correct env var from the buildpack
+            executablePath: process.env.CHROME_BIN, // This is the correct env var from the buildpack
+            ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'] // ADDED: To prevent conflicts
         });
         console.log('[Puppeteer] Browser launched successfully!');
 
@@ -173,7 +173,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
             margin: { top: '0', right: '0', bottom: '0', left: '0' },
             timeout: 90000 // Increased timeout for PDF generation to 90 seconds
         });
-        
+
         // Close the browser immediately after PDF generation
         if (browser) {
             await browser.close();
@@ -215,7 +215,7 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
     } finally {
         // Ensure browser is closed even if an error occurs
         if (browser) {
-            console.log('[Puppeteer] Closing browser in finally block due to error.');
+            console.log('[Puppeteer] Closing browser in finally block due to error or completion.'); // Updated log
             await browser.close();
         }
     }

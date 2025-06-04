@@ -30,7 +30,7 @@
     "multer-gridfs-storage": "^4.2.0",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.3",
-    "puppeteer": "^24.9.0",
+    "puppeteer-core": "^24.9.0",
     "swiper": "^11.2.8"
   },
   "devDependencies": {
