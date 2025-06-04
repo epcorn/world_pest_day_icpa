@@ -93,6 +93,7 @@ export default function VideoSubmissionPage() {
         'Showcased at Indiapest 2025 in Kathmandu! ✈️🏔️',
         'Couple pass for a scenic panoramic flight over Mount Everest! 🏞️🚁',
         'Featured on IPCA’s social media and website on World Pest Day! 🌐✨',
+        'Certificate of Participation from IPCA for all entries! 📜', // Added this line
     ];
 
     const dos = [
@@ -160,7 +161,7 @@ export default function VideoSubmissionPage() {
                     {/* Do's & Don'ts Card */}
                     <div className="md:col-span-2 lg:col-span-1 bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
                         <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-5 text-center">Guidelines</h2>
-                        <div className="grid grid-cols-1 gap-6"> {/* Removed md:grid-cols-2 here for better stacking on smaller tablets/vertical view */}
+                        <div className="grid grid-cols-1 gap-6">
                             <div>
                                 <h3 className="text-xl sm:text-2xl font-bold text-green-600 mb-3 flex items-center">
                                     <span className="mr-2 text-2xl sm:text-3xl">👍</span> Do's
@@ -173,7 +174,7 @@ export default function VideoSubmissionPage() {
                                     ))}
                                 </ul>
                             </div>
-                            <div className="mt-4 md:mt-0"> {/* Added margin top for spacing when stacked */}
+                            <div className="mt-4 md:mt-0">
                                 <h3 className="text-xl sm:text-2xl font-bold text-red-600 mb-3 flex items-center">
                                     <span className="mr-2 text-2xl sm:text-3xl">👎</span> Don'ts
                                 </h3>
