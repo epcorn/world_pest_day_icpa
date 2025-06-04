@@ -98,8 +98,11 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
         );
 
         console.log('[Puppeteer] Attempting to launch browser...');
-        // This log helps confirm if GOOGLE_CHROME_BIN is being set by the buildpack.
-        console.log('DEBUG: GOOGLE_CHROME_BIN is:', process.env.GOOGLE_CHROME_BIN);
+        // --- UPDATED: Use CHROME_BIN instead of GOOGLE_CHROME_BIN ---
+        console.log('DEBUG: CHROME_BIN is:', process.env.CHROME_BIN);
+        // You can remove the GOOGLE_CHROME_BIN log if you're sure you're not using it.
+        // console.log('DEBUG: GOOGLE_CHROME_BIN is:', process.env.GOOGLE_CHROME_BIN);
+        // -------------------------------------------------------------
 
         const browser = await puppeteer.launch({
             headless: true,
@@ -108,10 +111,12 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
                 '--disable-setuid-sandbox',
                 '--disable-gpu',
                 '--disable-dev-shm-usage',
-                '--single-process'
+                '--single-process',
+                '--no-zygote' // Added for robustness on Heroku
             ],
-            // THIS IS THE CRITICAL LINE. Using process.env.GOOGLE_CHROME_BIN from the Heroku buildpack.
+            // --- CRITICAL CHANGE: Use process.env.CHROME_BIN ---
             executablePath: process.env.CHROME_BIN
+            // ----------------------------------------------------
         });
         console.log('[Puppeteer] Browser launched successfully!');
 
@@ -150,13 +155,14 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
 
         await sendCertificateEmail(user.email, emailSubject, emailHtml, attachments);
 
-        fs.unlinkSync(pdfPath);
+        fs.unlinkSync(pdfPath); // Clean up the generated PDF file
 
         res.status(200).json({ message: message });
 
     } catch (err) {
         console.error('Error approving user:', err);
-        res.status(500).json({ message: 'Server error', error: err.message });
+        // Provide more detail in the error response for debugging
+        res.status(500).json({ message: 'Server error during certificate generation or email sending.', error: err.message });
     }
 });
 
