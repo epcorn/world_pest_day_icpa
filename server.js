@@ -1,14 +1,16 @@
+// In backend/server.js (or app.js)
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path"); // path is still needed for other potential static assets or general pathing
-require("dotenv").config();
+require("dotenv").config(); // Load environment variables at the very top, before any other code uses them
 
-// NEW: Import Cloudinary
+// Import Cloudinary
 const cloudinary = require('cloudinary').v2;
 
 // Import your routes
-const trafficRoutes = require('./routes/traffic'); 
+const trafficRoutes = require('./routes/traffic');
 const authRoutes = require("./routes/auth"); // Assuming users.js handles user auth
 const uploadRoute = require('./routes/uploadRoute'); // This should be the file we just modified for Cloudinary uploads
 const adminRoutes = require('./routes/adminRoute'); // Assuming admin.js handles admin specific routes
@@ -16,17 +18,18 @@ const adminRoutes = require('./routes/adminRoute'); // Assuming admin.js handles
 const app = express();
 
 const allowedOrigins = [
-  'http://localhost:5173',
+  'http://localhost:5173', // Your frontend local development URL
   'http://localhost:8080',
   'https://world-pest-day-client.onrender.com', // Your live Render frontend URL
-  'https://wpd.webconnectipca.com',
+  'https://wpd.webconnectipca.com', // Add any other live production URLs here
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.includes(origin)) { // Using .includes for cleaner check
       callback(null, true);
     } else {
       console.log(`CORS blocked: Origin '${origin}' not allowed.`);
@@ -51,15 +54,24 @@ cloudinary.config({
 });
 // --- END Cloudinary Configuration ---
 
-// --- Useful Diagnostic Logging ---
+// --- Body parsing middleware ---
+// These MUST come BEFORE any route definitions that need to read req.body
+app.use(express.json()); // Parses JSON bodies (e.g., from axios.post with a JSON payload)
+app.use(express.urlencoded({ extended: true })); // Parses URL-encoded bodies (e.g., from HTML forms)
+
+// --- ADDED: Enhanced Diagnostic Logging for Request Details and Body ---
 app.use((req, res, next) => {
   console.log(`[DIAGNOSTIC] Incoming Request: ${req.method} ${req.url} from ${req.ip}`);
-  next();
+  // Check if req.body exists and has properties (meaning it was parsed)
+  if (req.body && Object.keys(req.body).length > 0) {
+      console.log('[DIAGNOSTIC] Request Body:', req.body);
+  } else {
+      console.log('[DIAGNOSTIC] Request Body: (empty or not parsed by middleware)');
+  }
+  next(); // Pass control to the next middleware/route handler
 });
+// --- END Added Diagnostic Logging ---
 
-// Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // --- IMPORTANT: REMOVED LOCAL STATIC VIDEO SERVING ---
 // This line is commented out/removed because videos are now served directly from Cloudinary.
@@ -72,18 +84,19 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(express.static(path.join(__dirname, 'public')));
 
 
-// API Routes
+// API Routes - These should come after general middleware
 app.use("/api/users", authRoutes); // Handles user registration, verification etc.
 app.use("/api/upload", uploadRoute); // Handles video uploads to Cloudinary
 app.use("/api/admin", adminRoutes); // Handles admin login, approvals, certificate generation
-app.use('/api', trafficRoutes);
+app.use('/api', trafficRoutes); // Your traffic routes for visit tracking
+
 // Test endpoint
 app.get('/test', (req, res) => {
   console.log('[DIAGNOSTIC] Hit /test endpoint!');
   res.json({ message: 'API is working!' });
 });
 
-// Error handling middleware
+// Error handling middleware (should be last)
 app.use((err, req, res, next) => {
   console.error('[DIAGNOSTIC] Error Middleware:', err.stack);
   res.status(500).json({ message: 'Something broke!' });
@@ -101,5 +114,5 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch((err) => {
     console.error("❌ DB Connection Error:", err);
-    process.exit(1);
+    process.exit(1); // Exit process with failure code
   });
