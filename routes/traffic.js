@@ -1,45 +1,59 @@
+// In backend/routes/traffic.js
+
 const express = require('express');
 const router = express.Router();
 const Visit = require('../models/Visit');
 
-const getClientIp = (req) => {
-  const forwardedIpsStr = req.header('x-forwarded-for');
-  if (forwardedIpsStr) {
-    const forwardedIps = forwardedIpsStr.split(',');
-    return forwardedIps[0].trim();
-  }
-  return req.ip;
-};
+// No longer needed as we're not primarily tracking IPs
+// const getClientIp = (req) => {
+//   const forwardedIpsStr = req.header('x-forwarded-for');
+//   if (forwardedIpsStr) {
+//     const forwardedIps = forwardedIpsStr.split(',');
+//     return forwardedIps[0].trim();
+//   }
+//   return req.ip;
+// };
 
-// --- API Endpoint: /api/track-visit (No change) ---
-router.get('/track-visit', async (req, res) => {
-  const ip = getClientIp(req);
+// --- API Endpoint: /api/track-visit (CHANGED to POST and uses visitorId) ---
+router.post('/track-visit', async (req, res) => {
+  const { visitorId } = req.body; // Get visitorId from the request body
   const today = new Date().toISOString().split('T')[0];
 
+  if (!visitorId) {
+    return res.status(400).json({ message: 'visitorId is required' });
+  }
+
   try {
+    // Find or create a visit based on visitorId and dateVisited
     await Visit.findOneAndUpdate(
-      { ipAddress: ip, dateVisited: today },
-      { $set: { timestamp: Date.now() } },
+      { visitorId: visitorId, dateVisited: today }, // Query by visitorId
+      { $set: { timestamp: Date.now() } }, // Update timestamp
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
     res.status(200).json({ message: 'Visit tracked successfully' });
   } catch (error) {
+    // Handle potential duplicate key errors (from the unique index)
+    if (error.code === 11000) {
+        return res.status(200).json({ message: 'Visit already tracked for this visitor today.' });
+    }
     console.error('Error tracking visit:', error);
     res.status(500).json({ message: 'Failed to track visit' });
   }
 });
 
-// --- API Endpoint: /api/unique-visits (No change) ---
+// --- API Endpoint: /api/unique-visits (Uses visitorId for aggregation) ---
 router.get('/unique-visits', async (req, res) => {
   try {
+    // Count total unique visitors based on visitorId
     const totalUniqueVisitorsResult = await Visit.aggregate([
-        { $group: { _id: "$ipAddress" } },
-        { $count: "count" }
+      { $group: { _id: "$visitorId" } }, // Group by visitorId
+      { $count: "count" }
     ]);
     const totalUniqueVisitors = totalUniqueVisitorsResult.length > 0 ? totalUniqueVisitorsResult[0].count : 0;
 
+    // Count unique visitors for today based on visitorId and dateVisited
     const today = new Date().toISOString().split('T')[0];
-    const uniqueVisitorsToday = await Visit.countDocuments({ dateVisited: today });
+    const uniqueVisitorsToday = await Visit.countDocuments({ dateVisited: today }); // This already counts unique documents for today, which means unique visitorId + dateVisited combinations.
 
     res.status(200).json({
       totalUniqueVisitors: totalUniqueVisitors,
@@ -51,8 +65,7 @@ router.get('/unique-visits', async (req, res) => {
   }
 });
 
-// --- NEW API Endpoint: /api/unique-visits-daily ---
-// This endpoint will fetch unique visitor counts for a specific date or a range.
+// --- API Endpoint: /api/unique-visits-daily (Uses visitorId for aggregation) ---
 router.get('/unique-visits-daily', async (req, res) => {
     const { date } = req.query; // Expecting 'date' query parameter: YYYY-MM-DD
 
@@ -61,14 +74,9 @@ router.get('/unique-visits-daily', async (req, res) => {
     }
 
     try {
-        // Find unique visitors for the specified date
-        // In a real-world scenario, you might want to fetch for a range (e.g., last 7 days)
-        // to populate a chart with multiple bars. For this request, we'll return data for one day.
+        // Find unique visitors for the specified date based on visitorId
         const uniqueCount = await Visit.countDocuments({ dateVisited: date });
 
-        // For the chart, we need an array of objects like [{ date: "YYYY-MM-DD", count: N }]
-        // If you want to show a range, you'd perform an aggregation over a date range.
-        // For simplicity, I'm returning an array with just the requested date's data.
         const dailyData = [{
             date: date,
             count: uniqueCount
@@ -80,6 +88,5 @@ router.get('/unique-visits-daily', async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch daily unique visit count' });
     }
 });
-
 
 module.exports = router;

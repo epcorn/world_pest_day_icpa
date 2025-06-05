@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react'; // Make sure useEffect is imported
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import axios from 'axios'; // Make sure axios is imported
+// In frontend/src/App.js
 
-// Import your components from their new locations
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid'; // Import uuid
+
+// Import your components
 import Navbar from './components/Navbar.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import PrizingPage from './pages/PrizingPage.jsx';
@@ -11,36 +14,44 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import VideoSubmissionPage from './pages/VideoSubmissionPage.jsx';
 
-import './App.css'; // Assuming this imports your Tailwind CSS setup
+import './App.css';
 
 function App() {
-  // --- UNIQUE WEBSITE VISITOR TRACKING ---
-  // This useEffect hook will run once when the App component mounts.
-  // It sends a signal to your backend to record a unique visit.
+  // --- UNIQUE WEBSITE VISITOR TRACKING (NOW COOKIE/LOCALSTORAGE-BASED) ---
   useEffect(() => {
-    const trackPageVisit = async () => {
+    const trackWebsiteVisit = async () => {
+      let visitorId = localStorage.getItem('visitorId');
+
+      if (!visitorId) {
+        // If no visitorId exists, generate a new one
+        visitorId = uuidv4();
+        localStorage.setItem('visitorId', visitorId);
+        // console.log('Generated new visitorId:', visitorId);
+      } else {
+        // console.log('Using existing visitorId:', visitorId);
+      }
+
       try {
-        // Ensure your VITE_APP_API_BASE_URL is correctly set in your .env file
-        // (e.g., VITE_APP_API_BASE_URL=http://localhost:5000)
-        await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/track-visit`);
-        // console.log('Website visit tracked successfully.'); // For debugging, you can remove this
+        // Send a POST request with the visitorId
+        // We're changing this to POST because we're sending data in the body
+        await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/track-visit`, {
+          visitorId: visitorId
+        });
+        // console.log('Website visit tracked successfully with visitorId.');
       } catch (err) {
         console.error('Failed to track website visit:', err);
-        // Do not block the user experience if tracking fails
       }
     };
 
-    trackPageVisit();
-  }, []); // The empty dependency array ensures this runs only once on initial app load
+    trackWebsiteVisit();
+  }, []); // Empty dependency array ensures this runs only once on initial app load
 
   // --- END UNIQUE WEBSITE VISITOR TRACKING ---
 
-
   return (
     <Router>
-      {/* The Navbar will appear on all pages */}
       <Navbar />
-      <div className="container mx-auto mt-4 px-4"> {/* Basic container for page content */}
+      <div className="container mx-auto mt-4 px-4">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/prizing" element={<PrizingPage />} />
@@ -48,7 +59,6 @@ function App() {
           <Route path="/video-submission" element={<VideoSubmissionPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          {/* Catch-all route for 404 Not Found */}
           <Route path="*" element={<div className="text-center text-2xl mt-10">404: Page Not Found</div>} />
         </Routes>
       </div>
