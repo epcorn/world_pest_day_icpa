@@ -225,7 +225,7 @@ export default function VideoSubmissionPage() {
                                 {uploading ? 'Uploading... please wait! ⏳' : 'Submit Video Now! 🚀'}
                             </button>
                             <p className="text-gray-600 text-xs sm:text-sm mt-4 font-medium text-center">
-                                Note: Your submission will be valid only after email verification. Check your inbox! 📧
+                                Note: Your submission will be valid only after email verification. Check your inbox! If not in inbox then chek spam folder 📧
                             </p>
                         </form>
                     </div>

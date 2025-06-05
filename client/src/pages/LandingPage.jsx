@@ -39,6 +39,10 @@ const LandingPage = () => {
   // IPCA Logo URL for this page
   const WorldPestDay = 'https://res.cloudinary.com/dbzucdgf0/image/upload/v1748861419/wpd_logo_gobnep.png';
 
+  // Video URL for submission instructions
+  const submissionVideoUrl = 'https://res.cloudinary.com/dbzucdgf0/video/upload/v1749132949/New_Tab_-_Google_Chrome_2025-06-05_19-31-05_1_pdlwsp.mp4';
+
+
   const showMessage = (message) => {
     setCustomAlertMessage(message);
     setShowCustomAlert(true);
@@ -452,9 +456,35 @@ const LandingPage = () => {
         )}
       </div>
 
+      {/* "For any query contact" moved here */}
       <div className="relative z-10 mt-6 text-center text-gray-700 text-base sm:text-lg px-4">
         For any query contact <a href="mailto:webconnectipca@gmail.com" className="text-blue-600 hover:underline font-semibold">webconnectipca@gmail.com</a>
       </div>
+
+      ---
+
+      {/* How to Submit a Video Section */}
+      <div className="relative z-10 mt-12 w-full max-w-4xl text-center px-4">
+        <h2 className="text-4xl font-extrabold text-gray-900 mb-8">
+          How to Submit Your Video
+        </h2>
+        <div className="bg-white bg-opacity-95 p-6 md:p-10 rounded-xl shadow-2xl ring-4 ring-blue-300 ring-opacity-50">
+          <div className="aspect-video w-full rounded-lg overflow-hidden shadow-xl border-4 border-green-500">
+            <video
+              controls
+              src={submissionVideoUrl}
+              className="w-full h-full object-cover"
+              title="Video Submission Guide"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <p className="mt-6 text-lg text-gray-700">
+            Watch this quick guide to understand the video submission process. Make sure your video adheres to all guidelines for a smooth submission!
+          </p>
+        </div>
+      </div>
+      {/* End How to Submit a Video Section */}
 
       <div className="relative z-10 mt-12 sm:mt-16 text-gray-600 text-xs sm:text-sm opacity-80 text-center px-4">
         © {new Date().getFullYear()} Indian Pest Control Association. All rights reserved.
