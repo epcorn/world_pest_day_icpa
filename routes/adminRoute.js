@@ -4,11 +4,21 @@ const jwt = require('jsonwebtoken');
 const authAdmin = require('../Middleware/adminAuth');
 const Admin = require('../models/Admin');
 const User = require('../models/User');
-const puppeteer = require('puppeteer-core'); // CHANGED: Using puppeteer-core
-const fs = require('fs');
-const path = require('path');
 const generateCertificateHTML = require('./certificateTemplate');
 const sendCertificateEmail = require('../utils/sendCertificateEmail');
+const fs = require('fs'); // Re-added for temporary file operations
+const path = require('path'); // Re-added for path manipulation
+
+// ADDED: ConvertAPI initialization
+const ConvertAPI = require('convertapi');
+
+// --- Diagnostic: Check if CONVERTAPI_SECRET is loaded ---
+console.log('CONVERTAPI_SECRET loaded:', process.env.CONVERTAPI_SECRET ? 'YES' : 'NO');
+// For debugging, you can temporarily log the value, but be careful in production:
+// console.log('CONVERTAPI_SECRET value (DEBUG ONLY):', process.env.CONVERTAPI_SECRET);
+// --------------------------------------------------------
+
+const convertapi = new ConvertAPI(process.env.CONVERTAPI_SECRET); // Use environment variable for API token
 
 const router = express.Router();
 
@@ -45,7 +55,7 @@ router.post('/login', async (req, res) => {
 router.get('/submissions', authAdmin, async (req, res) => {
     try {
         const usersWithVideos = await User.find({ videoUrl: { $ne: null } })
-            .select('name email companyName mobile videoUrl isVerified isApproved annotation')
+            .select('name email companyName mobile videoUrl isVerified isApproved annotation certificateUrl')
             .sort({ videoUploadedAt: -1 });
 
         const submissions = usersWithVideos.map(user => ({
@@ -56,7 +66,8 @@ router.get('/submissions', authAdmin, async (req, res) => {
             mobile: user.mobile,
             videoUrl: user.videoUrl,
             isVerified: user.isVerified,
-            isApproved: user.isApproved
+            isApproved: user.isApproved,
+            certificateUrl: user.certificateUrl
         }));
 
         res.status(200).json(submissions);
@@ -67,20 +78,29 @@ router.get('/submissions', authAdmin, async (req, res) => {
 });
 
 router.post('/approve/:userId', authAdmin, async (req, res) => {
-    let browser; // Declare browser outside try-catch to ensure it's accessible in finally
+    let tempHtmlFilePath = null; // Declare outside try block for cleanup in catch
     try {
+        console.log(`[APPROVE] Request received for userId: ${req.params.userId}`);
+
         const user = await User.findById(req.params.userId);
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!user) {
+            console.warn(`[APPROVE] User not found: ${req.params.userId}`);
+            return res.status(404).json({ message: 'User not found' });
+        }
+        console.log(`[APPROVE] User found: ${user.email}, isApproved: ${user.isApproved}`);
 
         let message = 'Certificate re-sent successfully.';
+        let certificateUrl = user.certificateUrl; // Initialize with existing URL if any
 
         if (!user.isApproved) {
             user.isApproved = true;
             user.approvedBy = req.admin._id;
             user.approvedAt = new Date();
             user.status = 'approved';
-            await user.save();
             message = 'User video approved and certificate emailed successfully.';
+            console.log('[APPROVE] User status changed to approved.');
+        } else {
+            console.log('[APPROVE] User already approved. Resending certificate.');
         }
 
         const issueDate = new Date().toLocaleDateString('en-US', {
@@ -91,132 +111,90 @@ router.post('/approve/:userId', authAdmin, async (req, res) => {
 
         const userAnnotationPrefix = user.annotation ? `${user.annotation} ` : "";
 
-        const certificateHtml = generateCertificateHTML(
-            userAnnotationPrefix,
-            user.name,
-            user.companyName || 'N/A',
-            issueDate
-        );
+        // --- Reverting to original certificate HTML generation ---
+        const certificateHtml = generateCertificateHTML(userAnnotationPrefix, user.name, user.companyName || 'N/A', issueDate);
+        // --- End of change ---
 
-        console.log('[Puppeteer] Attempting to launch browser...');
-        // This log should now correctly show the CHROME_BIN value (if it's being set correctly)
-        console.log('DEBUG: CHROME_BIN is:', process.env.CHROME_BIN);
-        console.log('DEBUG: Node.js version:', process.version);
+        console.log('[APPROVE] Certificate HTML generated (first 500 chars):', certificateHtml.substring(0, 500));
+        // WARNING: Avoid logging entire HTML in production environments due to potential size/security issues.
+        // --------------------------------------------------------
 
+        console.log('[ConvertAPI] Initiating HTML to PDF conversion...');
 
-        browser = await puppeteer.launch({
-            headless: 'new', // CHANGED: Using 'new' for modern headless mode
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-gpu',
-                '--disable-dev-shm-usage', // Helps with memory on Heroku
-                '--single-process', // Important for Heroku's single dyno architecture
-                '--no-zygote', // Prevents creation of a new process for the browser
-                '--disable-web-security', // Can help with rendering local files or specific content
-                '--no-first-run',
-                '--no-default-browser-check',
-                '--disable-translate',
-                '--disable-extensions',
-                '--disable-sync',
-                '--hide-scrollbars',
-                '--metrics-recording-only',
-                '--mute-audio',
-                '--no-startup-window',
-                '--disable-features=site-per-process', // Can sometimes help with memory
-                '--disable-speech-api',
-                '--disable-background-networking',
-                '--disable-background-timer-throttling',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-breakpad',
-                '--disable-client-side-phishing-detection',
-                '--disable-component-update',
-                '--disable-default-apps',
-                '--disable-hang-monitor',
-                '--disable-ipc-flooding-detection',
-                '--disable-notifications',
-                '--disable-offer-store-unmasked-wallet-cards',
-                '--disable-popup-blocking',
-                '--disable-print-preview', // Might conflict with PDF, but sometimes helps if not needed
-                '--disable-prompt-on-repost',
-                '--disable-renderer-backgrounding',
-                '--disable-sync-app-list',
-                '--enable-automation',
-                '--force-color-profile=srgb',
-                '--metrics-recording-only',
-                '--no-default-browser-check',
-                '--no-first-run',
-                '--password-store=basic',
-                '--use-mock-keychain',
-                // '--font-render-hinting=none', // Uncomment if font rendering causes crashes, but can affect quality
-            ],
-            executablePath: process.env.CHROME_BIN, // This is the correct env var from the buildpack
-            ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'] // ADDED: To prevent conflicts
-        });
-        console.log('[Puppeteer] Browser launched successfully!');
+        // Create a temporary HTML file
+        tempHtmlFilePath = path.join(__dirname, `temp_certificate_${user._id}.html`);
+        console.log(`[APPROVE] Writing temporary HTML to: ${tempHtmlFilePath}`);
+        await fs.promises.writeFile(tempHtmlFilePath, certificateHtml, 'utf8');
 
-        const page = await browser.newPage();
-        // Set a default timeout for navigation and other page operations
-        page.setDefaultNavigationTimeout(90000); // Increased to 90 seconds
-        page.setDefaultTimeout(90000); // Increased to 90 seconds for other operations
+        // Convert the temporary HTML file to PDF using ConvertAPI
+        const convertApiResult = await convertapi.convert('pdf', { // Target format is PDF
+            File: tempHtmlFilePath, // Send the path to the temporary HTML file
+            FileName: `World_Pest_Day_Certificate_${user.name}.pdf`, // Suggested filename
+            PageOrientation: 'landscape', // Ensure landscape format
+            PageSize: 'A4', // Ensure A4 size
+            MarginTop: 0,
+            MarginBottom: 0,
+            MarginLeft: 0,
+            MarginRight: 0,
+            Scale: 90 // Corrected: Scales down the content to fit the page (adjust value as needed, between 10 and 200)
+        }, 'html'); // Source format is HTML
 
-        // Use 'domcontentloaded' or 'load' for potentially faster rendering if 'networkidle0' is too slow
-        // 'networkidle0' is generally good, but if assets are slow, it can cause issues.
-        await page.setContent(certificateHtml, { waitUntil: 'domcontentloaded' }); // Changed to domcontentloaded
+        console.log('[APPROVE] ConvertAPI conversion successful.');
 
-        await page.emulateMediaType('print');
-
-        const pdfBuffer = await page.pdf({
-            format: 'A4',
-            landscape: true,
-            printBackground: true,
-            margin: { top: '0', right: '0', bottom: '0', left: '0' },
-            timeout: 90000 // Increased timeout for PDF generation to 90 seconds
-        });
-
-        // Close the browser immediately after PDF generation
-        if (browser) {
-            await browser.close();
-            browser = null; // Set to null to prevent double-closing in finally block
+        // Get the URL of the generated PDF
+        const pdfFile = convertApiResult.files[0];
+        if (!pdfFile || !pdfFile.url) {
+            console.error('[APPROVE ERROR] ConvertAPI did not return a valid PDF URL. Result:', JSON.stringify(convertApiResult));
+            throw new Error('ConvertAPI did not return a valid PDF URL.');
         }
+        const generatedPdfUrl = pdfFile.url;
+        certificateUrl = generatedPdfUrl; // Update certificateUrl with the new one
 
-        const certificatesDir = path.join(__dirname, '../Uploads/certificates');
-        if (!fs.existsSync(certificatesDir)) {
-            fs.mkdirSync(certificatesDir, { recursive: true });
-        }
-        const pdfPath = path.join(certificatesDir, `certificate_${user._id}.pdf`);
-        fs.writeFileSync(pdfPath, pdfBuffer);
+        user.certificateUrl = certificateUrl; // Save the generated URL to the user document
+        await user.save();
+        console.log('[APPROVE] User document saved with new certificate URL.');
 
+        console.log('[APPROVE] Initiating email sending...');
         const emailSubject = 'Congratulations! Your World Pest Day Certificate';
         const emailHtml = `
             <h1>Congratulations, ${user.name}!</h1>
             <p>Thank you for participating in World Pest Day, celebrated by the Indian Pest Control Association.</p>
             <p>Attached is your certificate of participation.</p>
+            <p>You can also download it directly from this link: <a href="${generatedPdfUrl}">${generatedPdfUrl}</a></p>
             <p>Best regards,<br>Indian Pest Control Association</p>
         `;
         const attachments = [
             {
                 filename: `World_Pest_Day_Certificate_${user.name}.pdf`,
-                path: pdfPath,
+                href: generatedPdfUrl, // Nodemailer can take a URL for attachments
                 contentType: 'application/pdf'
             }
         ];
 
         await sendCertificateEmail(user.email, emailSubject, emailHtml, attachments);
+        console.log('[APPROVE] Certificate email sent successfully.');
 
-        fs.unlinkSync(pdfPath); // Clean up the generated PDF file
-
-        res.status(200).json({ message: message });
+        res.status(200).json({ message: message, certificateUrl: certificateUrl });
 
     } catch (err) {
-        console.error('Error approving user:', err);
-        // Provide more detail in the error response for debugging
+        console.error('[APPROVE ERROR] Error approving user or generating certificate:', err);
+        // Log more specific ConvertAPI errors if available
+        if (err.response && err.response.data) {
+            console.error('[APPROVE ERROR] ConvertAPI/Axios Error Details:', err.response.data);
+        }
+        if (err.name === 'MongooseError' || err.name === 'ValidationError') {
+            console.error('[APPROVE ERROR] Mongoose specific error:', err.message);
+        }
         res.status(500).json({ message: 'Server error during certificate generation or email sending.', error: err.message });
     } finally {
-        // Ensure browser is closed even if an error occurs
-        if (browser) {
-            console.log('[Puppeteer] Closing browser in finally block due to error or completion.'); // Updated log
-            await browser.close();
+        // Ensure temporary file is deleted even if errors occur
+        if (tempHtmlFilePath) {
+            try {
+                await fs.promises.unlink(tempHtmlFilePath);
+                console.log(`[APPROVE] Cleaned up temporary HTML file: ${tempHtmlFilePath}`);
+            } catch (cleanupErr) {
+                console.error(`[APPROVE ERROR] Failed to clean up temporary HTML file ${tempHtmlFilePath}:`, cleanupErr);
+            }
         }
     }
 });
