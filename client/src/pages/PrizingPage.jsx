@@ -10,7 +10,7 @@ const PrizingPage = () => {
           <span>Recognition & Rewards!</span>
         </h2>
         <p className="text-base sm:text-lg leading-relaxed mb-8 sm:mb-10 max-w-3xl mx-auto text-gray-700">
-          As we approach World Pest Day, we invite each member to create and <strong>submit a 2 minute video</strong> on any of the suggested themes. Showcase your contributions to public health, safety, and environmental well-being through creativity and collaboration!
+          As we approach World Pest Day, we invite each member to <strong>create and submit a 2 minute video</strong> on any of the suggested themes. Showcase your contributions to public health, safety, and environmental well-being through creativity and collaboration!
         </p>
 
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-6 border-b pb-3">Suggested Topics:</h3>
