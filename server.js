@@ -8,6 +8,7 @@ require("dotenv").config();
 const cloudinary = require('cloudinary').v2;
 
 // Import your routes
+const trafficRoutes = require('./routes/traffic'); 
 const authRoutes = require("./routes/auth"); // Assuming users.js handles user auth
 const uploadRoute = require('./routes/uploadRoute'); // This should be the file we just modified for Cloudinary uploads
 const adminRoutes = require('./routes/adminRoute'); // Assuming admin.js handles admin specific routes
@@ -75,7 +76,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/users", authRoutes); // Handles user registration, verification etc.
 app.use("/api/upload", uploadRoute); // Handles video uploads to Cloudinary
 app.use("/api/admin", adminRoutes); // Handles admin login, approvals, certificate generation
-
+app.use('/api', trafficRoutes);
 // Test endpoint
 app.get('/test', (req, res) => {
   console.log('[DIAGNOSTIC] Hit /test endpoint!');
