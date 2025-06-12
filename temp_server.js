@@ -1,16 +1,25 @@
-const express = require("express");
-const path = require('path');
+const mongoose = require('mongoose');
+const User = require('./models/User'); // Adjust the path as needed
 
-const app = express();
+const MONGO_URI = 'mongodb+srv://epcorn:epcorn1234@eppl.du6ol.mongodb.net/WorldPestDay?retryWrites=true&w=majority';
 
-// Serve static files from the React client's 'build' folder.
-app.use(express.static(path.join(__dirname, 'client/build')));
+async function getUsersWithoutVideo() {
+    try {
+        await mongoose.connect(MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
 
-// Catch-all route to serve the React app's index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-});
+        const users = await User.find({ videoUrl: null })
+            .select('name email companyName -_id') // Exclude _id here
+            .lean();
 
-const PORT = process.env.PORT || 5000; // Use a default port for now
+        console.log('Users who have not uploaded video:\n', users);
 
-app.listen(PORT, () => console.log(`🚀 Test server running on port ${PORT}`));
+        await mongoose.disconnect();
+    } catch (error) {
+        console.error('Error fetching users:', error);
+    }
+}
+
+getUsersWithoutVideo();
