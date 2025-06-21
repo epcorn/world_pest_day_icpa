@@ -255,7 +255,13 @@ const LandingPage = () => {
           </p>
         </div>
         {/* End Deadline Notification */}
-
+        <div className="mt-4 p-4 bg-green-600 rounded-lg shadow-lg animate-pulse-once">
+  <p className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide">
+    🎉 Deadline Extended: Now August 15th, 2025!
+  </p>
+  <p className="text-white text-sm sm:text-base mt-1">
+Due to multiple requests, we are extending the video submission deadline to give everyone a fair chance to participate.  </p>
+</div>
       </div>
 
       <div className="relative z-10 bg-white bg-opacity-95 p-6 md:p-12 rounded-xl shadow-2xl ring-4 ring-green-300 ring-opacity-50 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out w-11/12 max-w-md mx-auto">
