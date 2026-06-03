@@ -203,9 +203,8 @@ const LandingPage = () => {
               key={index}
               src={image}
               alt={`Banner ${index + 1}`}
-              className={`absolute inset-0 w-full h-full object-cover slider-image transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 w-full h-full object-cover slider-image transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = 'https://placehold.co/1200x400/138808/FFFFFF?text=Image+Not+Found';
@@ -239,7 +238,7 @@ const LandingPage = () => {
             onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/100x100/003366/FFFFFF?text=IPCA"; }}
           />
           <span className="worlds-text text-green-700 drop-shadow-lg mb-2 sm:mb-0">World</span>
-          <span className="pestday-text text-blue-700 drop-shadow-lg">Pest Day 2025</span>
+          <span className="pestday-text text-blue-700 drop-shadow-lg">Pest Day 2026</span>
         </h1>
         <p className="text-lg md:text-xl lg:text-3xl text-gray-700 font-semibold mt-4 tracking-wide main-slogan-fade px-2"> {/* Changed class here */}
           Come celebrate with us and win exciting rewards!
@@ -248,20 +247,20 @@ const LandingPage = () => {
         {/* Deadline Notification - Added Here */}
         <div className="mt-8 mb-8 p-4 bg-red-500 rounded-lg shadow-lg animate-pulse-once">
           <p className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide">
-            Video Submission Deadline: June 15th, 2025.
+            Video Submission Deadline: August 15th, 2026.
           </p>
           <p className="text-white text-sm sm:text-base mt-1">
             Ensure your entry is submitted on time!
           </p>
         </div>
         {/* End Deadline Notification */}
-        <div className="mt-4 p-4 bg-green-600 rounded-lg shadow-lg animate-pulse-once">
-  <p className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide">
-    🎉 Deadline Extended: Now August 15th, 2025!
-  </p>
-  <p className="text-white text-sm sm:text-base mt-1">
-Due to multiple requests, we are extending the video submission deadline to give everyone a fair chance to participate.  </p>
-</div>
+        {/* <div className="mt-4 p-4 bg-green-600 rounded-lg shadow-lg animate-pulse-once">
+          <p className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide">
+            🎉 Deadline Extended: Now August 15th, 2025!
+          </p>
+          <p className="text-white text-sm sm:text-base mt-1">
+            Due to multiple requests, we are extending the video submission deadline to give everyone a fair chance to participate.  </p>
+        </div> */}
       </div>
 
       <div className="relative z-10 bg-white bg-opacity-95 p-6 md:p-12 rounded-xl shadow-2xl ring-4 ring-green-300 ring-opacity-50 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out w-11/12 max-w-md mx-auto">
@@ -372,9 +371,8 @@ Due to multiple requests, we are extending the video submission deadline to give
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${
-                    loading ? 'opacity-60 cursor-not-allowed' : ''
-                  }`}
+                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${loading ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
                 >
                   {loading ? 'Checking Status...' : 'Check Status'}
                 </button>
@@ -416,7 +414,7 @@ Due to multiple requests, we are extending the video submission deadline to give
                       <option value="Dr.HC">Dr.HC</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9l4.57 4.57.707.707z"/></svg>
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9l4.57 4.57.707.707z" /></svg>
                     </div>
                   </div>
                 </div>
@@ -443,9 +441,8 @@ Due to multiple requests, we are extending the video submission deadline to give
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${
-                    loading ? 'opacity-60 cursor-not-allowed' : ''
-                  }`}
+                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${loading ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
                 >
                   {loading ? 'Registering...' : 'Register / Continue'}
                 </button>

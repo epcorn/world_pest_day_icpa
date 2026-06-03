@@ -15,8 +15,10 @@ const PrizingPage = () => {
 
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-6 border-b pb-3">Suggested Topics:</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
-          <TopicCard title="Safety Practices in Pest Management" icon={ShieldCheck} />
-          <TopicCard title="Public Awareness & Education" icon={Lightbulb} />
+          <TopicCard title="Safety Practices in Pest Management"
+            icon={ShieldCheck} />
+          <TopicCard title="Public Awareness & Education"
+            icon={Lightbulb} />
           <TopicCard title="Social Contributions by the Pest Control Industry" icon={Users} />
           <TopicCard title="Knowledge Sharing with Industry Peers" icon={BookOpen} />
         </div>
@@ -24,14 +26,15 @@ const PrizingPage = () => {
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-700 mb-6 border-b pb-3">How Your Video Will Be Recognized:</h3>
         <div className="space-y-4 sm:space-y-6">
           <RewardItem
-            title="Showcased at Indiapest 2025"
+            title="Showcased at Indiapest 2026"
             description="Your video will be featured at the prestigious Indiapest 2025 event in Kathmandu, gaining exposure to industry leaders and peers."
             icon={Youtube}
             color="text-red-600"
           />
           <RewardItem
-            title="Panoramic Flight Over Mount Everest"
-            description="The top video will be awarded a couple pass for an unforgettable scenic panoramic flight over the majestic Mount Everest!"
+            title="A Heritage Escape to Mahabalipuram"
+            description="The top video will be awarded a complimentary tour couple pass to the historic coastal town of Mahabalipuram, home to stunning monuments rich culture, and breathtaking seasde views
+            "
             icon={Plane}
             color="text-blue-600"
           />
@@ -51,8 +54,8 @@ const PrizingPage = () => {
 
         {/* Sliding Image Banner Section */}
         <div className="mt-10 sm:mt-12">
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 mb-4 text-center">A glimpse of this Year...</h3>
-          <div className="overflow-x-auto whitespace-nowrap scrollbar-hide flex gap-4 sm:gap-6 px-2 py-4">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 mb-4 text-center">A glimpse of last Year...</h3>
+          <div className="overflow-x-auto whitespace-nowrap scrollbar-hide flex gap-4 sm:gap-6 px-2 py-4 snap-x snap-mandatory">
             {[
               "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748863391/ChatGPT_Image_Jun_2_2025_04_52_08_PM_ezkvai.png",
               "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748865050/ChatGPT_Image_Jun_2_2025_05_20_37_PM_gothn9.png",
@@ -62,7 +65,7 @@ const PrizingPage = () => {
                 key={idx}
                 src={url}
                 alt={`Banner ${idx + 1}`}
-                className="rounded-xl h-48 sm:h-56 md:h-60 w-[280px] sm:w-[320px] md:w-[360px] object-cover flex-shrink-0 shadow-md border border-gray-200"
+                className="rounded-xl h-48 sm:h-56 md:h-60 w-[280px] sm:w-[320px] md:w-[360px] object-cover flex-shrink-0 shadow-md border border-gray-200 snap-center"
               />
             ))}
           </div>
