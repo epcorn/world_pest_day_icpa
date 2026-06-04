@@ -1,5 +1,7 @@
 import React from 'react';
 import { Award, Plane, Share2, Youtube, ShieldCheck, Lightbulb, Users, BookOpen, FileText } from 'lucide-react'; // Added FileText icon for Certificate
+import { GiByzantinTemple } from "react-icons/gi";
+
 
 const PrizingPage = () => {
   return (
@@ -35,8 +37,8 @@ const PrizingPage = () => {
             title="A Heritage Escape to Mahabalipuram"
             description="The top video will be awarded a complimentary tour couple pass to the historic coastal town of Mahabalipuram, home to stunning monuments rich culture, and breathtaking seasde views
             "
-            icon={Plane}
-            color="text-blue-600"
+            icon={GiByzantinTemple}
+            color="text-orange-600"
           />
           <RewardItem
             title="Featured on IPCA’s Official Social Media"

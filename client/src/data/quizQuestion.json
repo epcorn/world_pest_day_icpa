@@ -1,0 +1,214 @@
+{
+  "quizTitle": "World Pest Day Quiz",
+  "questions": [
+    {
+      "id": 1,
+      "question": "When is World Pest Day celebrated?",
+      "options": ["5 June", "6 June", "7 June", "8 June"],
+      "answer": "6 June"
+    },
+    {
+      "id": 2,
+      "question": "What is the primary goal of pest management?",
+      "options": [
+        "Eliminate all insects from the environment",
+        "Increase pesticide use",
+        "Protect public health, property, and food supplies",
+        "Breed beneficial insects"
+      ],
+      "answer": "Protect public health, property, and food supplies"
+    },
+    {
+      "id": 3,
+      "question": "Which of the following pests is known to transmit dengue fever?",
+      "options": ["Housefly", "Cockroach", "Mosquito", "Termite"],
+      "answer": "Mosquito"
+    },
+    {
+      "id": 4,
+      "question": "What does IPM stand for?",
+      "options": [
+        "Integrated Pest Management",
+        "Internal Pest Monitoring",
+        "International Pest Method",
+        "Insect Prevention Mechanism"
+      ],
+      "answer": "Integrated Pest Management"
+    },
+    {
+      "id": 5,
+      "question": "Which pest is commonly referred to as the 'silent destroyer'?",
+      "options": ["Rat", "Cockroach", "Termite", "Mosquito"],
+      "answer": "Termite"
+    },
+    {
+      "id": 6,
+      "question": "Which pest can contaminate food by carrying pathogens on its body?",
+      "options": ["Housefly", "Butterfly", "Dragonfly", "Ladybird Beetle"],
+      "answer": "Housefly"
+    },
+    {
+      "id": 7,
+      "question": "Which of the following is a key principle of Integrated Pest Management?",
+      "options": [
+        "Use pesticides only",
+        "Prevention and monitoring",
+        "Ignore pest activity",
+        "Eliminate all wildlife"
+      ],
+      "answer": "Prevention and monitoring"
+    },
+    {
+      "id": 8,
+      "question": "What attracts rodents to buildings?",
+      "options": [
+        "Food, water, and shelter",
+        "Bright lights only",
+        "Paint odours",
+        "Air conditioning"
+      ],
+      "answer": "Food, water, and shelter"
+    },
+    {
+      "id": 9,
+      "question": "Which pest is most commonly associated with damaging wooden structures?",
+      "options": ["Mosquito", "Ant", "Termite", "Housefly"],
+      "answer": "Termite"
+    },
+    {
+      "id": 10,
+      "question": "Why is proper sanitation important in pest management?",
+      "options": [
+        "It increases pest reproduction",
+        "It helps reduce pest food and shelter sources",
+        "It attracts beneficial pests",
+        "It replaces all pest control methods"
+      ],
+      "answer": "It helps reduce pest food and shelter sources"
+    },
+    {
+      "id": 11,
+      "question": "Which pest is known to spread leptospirosis?",
+      "options": ["Rat", "Ant", "Spider", "Termite"],
+      "answer": "Rat"
+    },
+    {
+      "id": 12,
+      "question": "What should be read before using any pesticide product?",
+      "options": ["Advertisement", "Product label", "Invoice", "Safety poster"],
+      "answer": "Product label"
+    },
+    {
+      "id": 13,
+      "question": "Which of these is considered a biological control agent?",
+      "options": ["Cockroach", "Ladybird Beetle", "Housefly", "Mosquito"],
+      "answer": "Ladybird Beetle"
+    },
+    {
+      "id": 14,
+      "question": "Bed bugs primarily feed on:",
+      "options": ["Wood", "Fabric", "Human and animal blood", "Food scraps"],
+      "answer": "Human and animal blood"
+    },
+    {
+      "id": 15,
+      "question": "What is the best way to prevent mosquito breeding?",
+      "options": [
+        "Increase lighting",
+        "Remove standing water",
+        "Spray perfume outdoors",
+        "Open windows"
+      ],
+      "answer": "Remove standing water"
+    },
+    {
+      "id": 16,
+      "question": "Which pest can trigger allergies and asthma through its droppings and body parts?",
+      "options": ["Cockroach", "Butterfly", "Honeybee", "Dragonfly"],
+      "answer": "Cockroach"
+    },
+    {
+      "id": 17,
+      "question": "Personal Protective Equipment (PPE) is important because it:",
+      "options": [
+        "Makes work faster",
+        "Protects applicators from exposure risks",
+        "Attracts fewer pests",
+        "Improves pesticide smell"
+      ],
+      "answer": "Protects applicators from exposure risks"
+    },
+    {
+      "id": 18,
+      "question": "Which of the following is NOT a pest management strategy?",
+      "options": [
+        "Monitoring",
+        "Exclusion",
+        "Habitat modification",
+        "Ignoring infestations"
+      ],
+      "answer": "Ignoring infestations"
+    },
+    {
+      "id": 19,
+      "question": "Ants communicate primarily using:",
+      "options": [
+        "Sound waves",
+        "Light flashes",
+        "Pheromones",
+        "Vibrations only"
+      ],
+      "answer": "Pheromones"
+    },
+    {
+      "id": 20,
+      "question": "Which pest is capable of surviving for weeks without feeding?",
+      "options": ["Mosquito", "Bed Bug", "Housefly", "Fruit Fly"],
+      "answer": "Bed Bug"
+    },
+    {
+      "id": 21,
+      "question": "Why is pest management important for food industries?",
+      "options": [
+        "To improve food colour",
+        "To prevent contamination and ensure food safety",
+        "To increase food prices",
+        "To reduce packaging costs"
+      ],
+      "answer": "To prevent contamination and ensure food safety"
+    },
+    {
+      "id": 22,
+      "question": "Which organization recognizes World Pest Day globally?",
+      "options": [
+        "World Health Organization only",
+        "United Nations only",
+        "Global pest management organizations and industry associations",
+        "Food retailers only"
+      ],
+      "answer": "Global pest management organizations and industry associations"
+    },
+    {
+      "id": 23,
+      "question": "What is the first step in solving a pest problem?",
+      "options": [
+        "Apply pesticide immediately",
+        "Identify the pest correctly",
+        "Replace furniture",
+        "Close the building"
+      ],
+      "answer": "Identify the pest correctly"
+    },
+    {
+      "id": 24,
+      "question": "What is the theme behind World Pest Day?",
+      "options": [
+        "Promoting insects in homes",
+        "Highlighting the role of pest management in protecting health, food, and property",
+        "Increasing pesticide sales",
+        "Eliminating all insects globally"
+      ],
+      "answer": "Highlighting the role of pest management in protecting health, food, and property"
+    }
+  ]
+}

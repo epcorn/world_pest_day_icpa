@@ -1,7 +1,7 @@
 // In frontend/src/App.js
 
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid'; // Import uuid
 
@@ -59,7 +59,7 @@ function App() {
           <Route path="/video-submission" element={<VideoSubmissionPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="*" element={<div className="text-center text-2xl mt-10">404: Page Not Found</div>} />
+          <Route path="*" element={<Navigate to="/" replace/>} />
         </Routes>
       </div>
     </Router>

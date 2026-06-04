@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { gsap } from 'gsap';
@@ -11,8 +11,7 @@ const bannerImages = [
 ];
 
 const LandingPage = () => {
-  console.log('API Base URL:', import.meta.env.VITE_APP_API_BASE_URL);
-
+  const formRef = useRef();
   const [formData, setFormData] = useState({
     annotation: 'Mr',
     name: '',
@@ -127,11 +126,9 @@ const LandingPage = () => {
       const response = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/register`, payload);
 
       showMessage(response.data.message);
-
       localStorage.setItem('userEmail', email);
       localStorage.setItem('isVerified', 'false');
       navigate('/video-submission');
-
     } catch (err) {
       console.error('Registration/Check error:', err);
       const errorMessage = err.response?.data?.message || 'Failed to submit form. Please try again.';
@@ -195,6 +192,7 @@ const LandingPage = () => {
       {/* Animated Banner for Prizing with Sliding Images */}
       <div
         className="relative w-full max-w-6xl h-64 md:h-80 lg:h-96 bg-cover bg-center rounded-2xl shadow-xl overflow-hidden flex items-center justify-center animate-fade-in-up mb-8 md:mb-12"
+        onClick={() => formRef.current.scrollIntoView({ behavior: "smooth" })}
       >
         {/* Sliding Images */}
         <div className="absolute inset-0">
@@ -220,16 +218,16 @@ const LandingPage = () => {
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl mt-2 sm:mt-4 text-white max-w-2xl animate-fade-in delay-200">
             Showcase your contributions to public health and earn recognition.
           </p>
-          <Link
-            to="/prizing"
+          <button
             className="mt-4 sm:mt-8 px-6 py-2 sm:px-8 sm:py-3 bg-yellow-400 text-blue-900 font-bold text-base sm:text-xl rounded-full shadow-lg hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+            onClick={(e) => { e.stopPropagation(); navigate(`/prizing`) }}
           >
             View Prizes & Recognition
-          </Link>
+          </button>
         </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-4xl text-center mb-8 md:mb-16 px-4">
+      <div className="relative z-10 w-full max-w-4xl text-center mb-8 md:mb-16 px-4 outline outline-gray-300 rounded-2xl overflow-hidden">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-gray-900 leading-tight flex flex-col sm:flex-row justify-center items-center space-x-0 sm:space-x-8">
           <img
             src={WorldPestDay}
@@ -243,25 +241,25 @@ const LandingPage = () => {
         <p className="text-lg md:text-xl lg:text-3xl text-gray-700 font-semibold mt-4 tracking-wide main-slogan-fade px-2"> {/* Changed class here */}
           Come celebrate with us and win exciting rewards!
         </p>
+      </div>
 
-        {/* Deadline Notification - Added Here */}
-        <div className="mt-8 mb-8 p-4 bg-red-500 rounded-lg shadow-lg animate-pulse-once">
-          <p className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide">
-            Video Submission Deadline: August 15th, 2026.
-          </p>
-          <p className="text-white text-sm sm:text-base mt-1">
-            Ensure your entry is submitted on time!
-          </p>
-        </div>
-        {/* End Deadline Notification */}
-        {/* <div className="mt-4 p-4 bg-green-600 rounded-lg shadow-lg animate-pulse-once">
+      {/* Deadline Notification - Added Here */}
+      <div className="mt-8 mb-8 p-4 bg-red-500 rounded-lg shadow-lg animate-pulse-once">
+        <p className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide">
+          Video Submission Deadline: August 15th, 2026.
+        </p>
+        <p className="text-white text-sm sm:text-base mt-1">
+          Ensure your entry is submitted on time!
+        </p>
+      </div>
+      {/* End Deadline Notification */}
+      {/* <div className="mt-4 p-4 bg-green-600 rounded-lg shadow-lg animate-pulse-once">
           <p className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide">
             🎉 Deadline Extended: Now August 15th, 2025!
           </p>
           <p className="text-white text-sm sm:text-base mt-1">
             Due to multiple requests, we are extending the video submission deadline to give everyone a fair chance to participate.  </p>
         </div> */}
-      </div>
 
       <div className="relative z-10 bg-white bg-opacity-95 p-6 md:p-12 rounded-xl shadow-2xl ring-4 ring-green-300 ring-opacity-50 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out w-11/12 max-w-md mx-auto">
         {showCustomAlert && (
@@ -385,7 +383,7 @@ const LandingPage = () => {
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleSubmitMainForm} className="space-y-4 sm:space-y-6">
+              <form ref={formRef} onSubmit={handleSubmitMainForm} className="space-y-4 sm:space-y-6">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">
                   Join the Celebration
                 </h2>
@@ -431,7 +429,7 @@ const LandingPage = () => {
                       name={field}
                       value={formData[field]}
                       onChange={handleChange}
-                      className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900 text-sm sm:text-base"
+                      className={`w-full p-2 sm:p-3 border ${field === "email" ? "" : "uppercase"} border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 text-gray-900 text-sm sm:text-base"`}
                       required={field !== 'companyName'}
                       placeholder={`Enter your ${field === 'companyName' ? 'company name' : field === 'mobile' ? 'mobile number' : field}...`}
                     />
