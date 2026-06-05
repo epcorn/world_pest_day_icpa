@@ -172,7 +172,7 @@ export default function VideoSubmissionPage() {
           {/* Prizes Card */}
           <div className="bg-white p-6 sm:py-8 rounded-2xl shadow-xl border border-blue-200 hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
             <h2 className="text-2xl sm:text-2xl font-bold text-blue-700 mb-5 flex items-center">
-              <span className="mr-3 text-3xl sm:text-4xl">🏆</span> Prizes for Top 3 Videos!
+              <span className="mr-3 text-3xl sm:text-4xl">🏆</span> Prizes for Top 3!
             </h2>
             <ul className="space-y-2 sm:space-y-3 text-base sm:text-lg text-gray-700 list-none">
               {prizes.map((prize, idx) => (
