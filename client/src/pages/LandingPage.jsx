@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { gsap } from 'gsap';
+import HeroSlider from '../components/HeroSlider';
 
 // Array of provided image URLs for the slider
 const bannerImages = [
@@ -69,11 +70,11 @@ const LandingPage = () => {
       { opacity: 1, y: 0, duration: 1, delay: 1.5, ease: 'power2.out' }
     );
     // Animation for the slider images
-    gsap.fromTo(
-      '.slider-image',
-      { opacity: 0 },
-      { opacity: 1, duration: 1, ease: 'power2.out' }
-    );
+    // gsap.fromTo(
+    //   '.slider-image',
+    //   { opacity: 0 },
+    //   { opacity: 1, duration: 1, ease: 'power2.out' }
+    // );
   }, [currentImageIndex]);
 
   // Slider effect: Change image every 5 seconds
@@ -188,44 +189,10 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-blue-100 overflow-hidden">
+    <div className="relative min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center gap-5 p-4 sm:p-6 bg-gradient-to-br from-green-50 to-blue-100 overflow-hidden">
       {/* Animated Banner for Prizing with Sliding Images */}
-      <div
-        className="relative w-full max-w-6xl h-64 md:h-80 lg:h-96 bg-cover bg-center rounded-2xl shadow-xl overflow-hidden flex items-center justify-center animate-fade-in-up mb-8 md:mb-12"
-        onClick={() => formRef.current.scrollIntoView({ behavior: "smooth" })}
-      >
-        {/* Sliding Images */}
-        <div className="absolute inset-0">
-          {bannerImages.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Banner ${index + 1}`}
-              className={`absolute inset-0 w-full h-full object-cover slider-image transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                }`}
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = 'https://placehold.co/1200x400/138808/FFFFFF?text=Image+Not+Found';
-              }}
-            />
-          ))}
-        </div>
-        {/* Overlay and Text */}
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white drop-shadow-lg animate-scale-in">
-            Submit Your Video & Win Amazing Prizes!
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mt-2 sm:mt-4 text-white max-w-2xl animate-fade-in delay-200">
-            Showcase your contributions to public health and earn recognition.
-          </p>
-          <button
-            className="mt-4 sm:mt-8 px-6 py-2 sm:px-8 sm:py-3 bg-yellow-400 text-blue-900 font-bold text-base sm:text-xl rounded-full shadow-lg hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300"
-            onClick={(e) => { e.stopPropagation(); navigate(`/prizing`) }}
-          >
-            View Prizes & Recognition
-          </button>
-        </div>
-      </div>
+     
+      <HeroSlider formRef={formRef} navigate={navigate} />
 
       <div className="relative z-10 w-full max-w-4xl text-center mb-8 md:mb-16 px-4 outline outline-gray-300 rounded-2xl overflow-hidden">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-gray-900 leading-tight flex flex-col sm:flex-row justify-center items-center space-x-0 sm:space-x-8">
@@ -491,60 +458,6 @@ const LandingPage = () => {
         © {new Date().getFullYear()} Indian Pest Control Association. All rights reserved.
       </div>
 
-      <style jsx>{`
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
-        .animate-blob {
-          animation: blob 7s infinite cubic-bezier(0.6, 0.4, 0.4, 0.8);
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animate-pulse-once {
-          animation: pulse-once 1.5s forwards;
-        }
-        @keyframes pulse-once {
-          0% { opacity: 0; transform: scale(0.9); }
-          50% { opacity: 1; transform: scale(1); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-
-        .animate-fade-in {
-          animation: fadeIn 0.8s ease-out forwards;
-        }
-        .animate-fade-in-up {
-          animation: fadeInUp 0.8s ease-out forwards;
-        }
-        .animate-scale-in {
-          animation: scaleIn 0.7s ease-out forwards;
-        }
-        .delay-200 { animation-delay: 0.2s; }
-      `}</style>
     </div>
   );
 };

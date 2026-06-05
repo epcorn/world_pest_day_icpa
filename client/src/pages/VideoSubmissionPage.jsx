@@ -91,8 +91,8 @@ export default function VideoSubmissionPage() {
   ];
 
   const prizes = [
-    'Showcased at Indiapest 2026 in Kathmandu! ✈️🏔️',
-    'Couple pass for a scenic panoramic flight over Mount Everest! 🏞️🚁',
+    'Showcased at Indiapest 2026 in Chennai! 🚂🍵',
+    'Couple pass to a heritage escape to Mahabalipuram! 🛕',
     'Featured on IPCA’s social media and website on World Pest Day! 🌐✨',
     'Certificate of Participation from IPCA for all entries! 📜', // Added this line
   ];
@@ -106,8 +106,8 @@ export default function VideoSubmissionPage() {
   ];
 
   const donts = [
-    'Do not use plagiarized videos & Photos. 🚫',
-    'Do not use AI-generated videos & Photos. 🤖❌',
+    'Do not use plagiarized videos & photos. 🚫',
+    'Do not use AI-generated videos & photos. 🤖❌',
     'Do not mention any brand names or individual names. 🤫',
     'Avoid offensive or inappropriate content. 🛑',
   ];
@@ -134,8 +134,8 @@ export default function VideoSubmissionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 xl:gap-2 h-fit">
           {/* Video Themes Card */}
           <div className="bg-white p-6 sm:py-8 rounded-2xl shadow-xl border border-green-200 hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
-            <h2 className="text-2xl sm:text-3xl font-bold text-green-700 mb-5 flex items-center">
-              <span className="mr-3 text-3xl sm:text-4xl">💡</span> Video Themes
+            <h2 className="text-2xl sm:text-2xl font-bold text-green-700 mb-5 flex items-center">
+              <span className="mr-2 text-2xl sm:text-4xl">💡</span> Video & Images Themes
             </h2>
             <ul className="space-y-2 sm:space-y-3 text-base sm:text-lg text-gray-700 list-none">
               {themes.map((theme, idx) => (
@@ -148,7 +148,7 @@ export default function VideoSubmissionPage() {
 
           {/* Prizes Card */}
           <div className="bg-white p-6 sm:py-8 rounded-2xl shadow-xl border border-blue-200 hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
-            <h2 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-5 flex items-center">
+            <h2 className="text-2xl sm:text-2xl font-bold text-blue-700 mb-5 flex items-center">
               <span className="mr-3 text-3xl sm:text-4xl">🏆</span> Prizes for Top 3 Videos!
             </h2>
             <ul className="space-y-2 sm:space-y-3 text-base sm:text-lg text-gray-700 list-none">
@@ -276,7 +276,7 @@ export default function VideoSubmissionPage() {
                     </span>
                   </p>
                   <p className="text-gray-500 text-xs sm:text-sm italic mt-4">
-                    Thank you for your contribution! Please play World Pest Quiz and get Certificate.
+                    {userVideo.certificateUrl ? "" : "Thank you for your contribution! Please play World Pest Quiz and get Certificate."}
                   </p>
                 </div>
               </div>
@@ -298,7 +298,10 @@ export default function VideoSubmissionPage() {
               </>
             }
             {userVideo.certificateUrl &&
-              <a href={userVideo.certificateUrl} className='my-3  outline px-3 py-1 bg-gray-600 text-white w-fit mx-auto rounded-lg'>Certificate Url</a>
+              <>
+                <p className='text-2xl '>Congrates you got certificate 🎉🎉</p>
+                <a href={userVideo.certificateUrl} className='my-3  outline px-3 py-1 bg-gray-600 text-white w-fit mx-auto rounded-lg'>Certificate Url</a>
+              </>
             }
           </div>}
         </div>

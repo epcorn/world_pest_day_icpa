@@ -54,14 +54,16 @@ const PrizingPage = () => {
           />
         </div>
 
+        {/* "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748865050/ChatGPT_Image_Jun_2_2025_05_20_37_PM_gothn9.png",
+            "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748863746/ChatGPT_Image_Jun_2_2025_04_58_51_PM_j82oex.png",
+             "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748863391/ChatGPT_Image_Jun_2_2025_04_52_08_PM_ezkvai.png",
+             */}
         {/* Sliding Image Banner Section */}
         <div className="mt-10 sm:mt-12">
           <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 mb-4 text-center">A glimpse of last Year...</h3>
           <div className="overflow-x-auto whitespace-nowrap scrollbar-hide flex gap-4 sm:gap-6 px-2 py-4 snap-x snap-mandatory">
             {[
-              "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748863391/ChatGPT_Image_Jun_2_2025_04_52_08_PM_ezkvai.png",
-              "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748865050/ChatGPT_Image_Jun_2_2025_05_20_37_PM_gothn9.png",
-              "https://res.cloudinary.com/dbzucdgf0/image/upload/v1748863746/ChatGPT_Image_Jun_2_2025_04_58_51_PM_j82oex.png"
+              "https://res.cloudinary.com/djc8opvcg/image/upload/v1780636232/WhatsApp_Image_2026-06-04_at_6.37.13_PM_izapjd.jpg"
             ].map((url, idx) => (
               <img
                 key={idx}

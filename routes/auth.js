@@ -13,7 +13,7 @@ const sendCertificateEmail = require("../utils/sendCertificateEmail");
 const convertapi = new ConvertAPI(process.env.CONVERTAPI_SECRET);
 
 // POST /api/users/register
-// Registers a new user, sends verification email, and provides a passcode.
+// Registers a new user, sends verification email, and provides a passcode
 router.post("/register", async (req, res) => {
   const { annotation, name, companyName, email, mobile } = req.body;
 
@@ -102,6 +102,21 @@ router.post("/register", async (req, res) => {
     res.status(500).json({
       message: "Server error during registration. Please try again later.",
     });
+  }
+});
+
+router.get("/runner", async (req, res) => {
+  try {
+    
+
+    const users = await User.find().select("-mobile -email -passcode");
+
+    if (!users) return res.status(400).json({ msg: "users not found" });
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -253,7 +268,7 @@ router.post("/approve/:userId", async (req, res) => {
     if (!user.isApproved) {
       user.isApproved = true;
       user.score = quizScore; // Stored securely as a validated Number integer
-    //   user.approvedBy = ;
+      //   user.approvedBy = ;
       user.approvedAt = new Date();
       user.status = "approved";
       message = "User video approved and certificate emailed successfully.";

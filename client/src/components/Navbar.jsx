@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Home, Trophy, Info, Menu, X } from 'lucide-react'; // Lucide React icons
+import Runner from './Runner';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -18,12 +19,12 @@ const Navbar = () => {
       to={to}
       onClick={() => setIsMobileMenuOpen(false)} // Close menu on click
       className={({ isActive }) =>
-        `flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 text-white hover:shadow-md ${isActive ? "bg-blue-400 text-white shadow-md font-bold" : "" // Active classes for desktop
+        `flex items-center space-x-1 px-4 py-2 rounded-lg transition-all duration-300 text-white hover:shadow-md ${isActive ? "bg-blue-400 text-white shadow-md font-bold" : "" // Active classes for desktop
         }`
       }
     >
       {Icon && <Icon size={20} />}
-      <span className="font-semibold text-lg">{text}</span>
+      <span className="font-semibold text-md">{text}</span>
     </NavLink>
   );
 
@@ -44,38 +45,42 @@ const Navbar = () => {
 
 
   return (
-    <nav className="bg-gradient-to-r from-blue-800 to-blue-600 p-4 shadow-lg rounded-b-xl">
-      <div className="container mx-auto flex justify-between items-center flex-wrap">
-        {/* IPCA Logo for the Navbar - uses ipcaLogoUrl */}
-        <div className="flex items-center space-x-3">
-          <img src={ipcaLogoUrl} alt="IPCA Logo" className="h-12 w-12 rounded-full border-2 border-white shadow-md" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/100x100/003366/FFFFFF?text=IPCA"; }} />
-          <span className="text-white text-2xl font-extrabold tracking-wide">World Pest Day</span>
+    <div>
+
+      <nav className="bg-gradient-to-r from-blue-800 to-blue-600 p-4 shadow-lg rounded-b-xl">
+        <div className="container mx-auto flex justify-between items-center flex-wrap">
+          {/* IPCA Logo for the Navbar - uses ipcaLogoUrl */}
+          <div className="flex items-center space-x-3">
+            <img src={ipcaLogoUrl} alt="IPCA Logo" className="h-12 w-12 rounded-full border-2 border-white shadow-md" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/100x100/003366/FFFFFF?text=IPCA"; }} />
+            <span className="text-white text-lg md:text-2xl font-extrabold tracking-wide">World Pest Day</span>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white focus:outline-none p-2 rounded-md hover:bg-blue-700 transition-colors">
+              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
+
+          {/* Navigation Links (Desktop) */}
+          <div className="hidden md:flex space-x-2">
+            <NavLinkComponent to="/" text="Home" icon={Home} />
+            <NavLinkComponent to="/prizing" text="Prizing" icon={Trophy} />
+            <NavLinkComponent to="/about-us" text="About Us" icon={Info} />
+          </div>
         </div>
 
-        {/* Mobile menu button */}
-        <div className="md:hidden">
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white focus:outline-none p-2 rounded-md hover:bg-blue-700 transition-colors">
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
-        </div>
-
-        {/* Navigation Links (Desktop) */}
-        <div className="hidden md:flex space-x-8">
-          <NavLinkComponent to="/" text="Home" icon={Home} />
-          <NavLinkComponent to="/prizing" text="Prizing" icon={Trophy} />
-          <NavLinkComponent to="/about-us" text="About Us" icon={Info} />
-        </div>
-      </div>
-
-      {/* Mobile menu (conditionally rendered) */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden mt-4 bg-blue-700 rounded-lg shadow-inner py-2">
-          <MobileNavLink to="/" text="Home" icon={Home} />
-          <MobileNavLink to="/prizing" text="Prizing" icon={Trophy} />
-          <MobileNavLink to="/about-us" text="About Us" icon={Info} />
-        </div>
-      )}
-    </nav>
+        {/* Mobile menu (conditionally rendered) */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-4 bg-blue-700 rounded-lg shadow-inner py-2">
+            <MobileNavLink to="/" text="Home" icon={Home} />
+            <MobileNavLink to="/prizing" text="Prizing" icon={Trophy} />
+            <MobileNavLink to="/about-us" text="About Us" icon={Info} />
+          </div>
+        )}
+      </nav>
+      <Runner />
+    </div>
   );
 };
 
