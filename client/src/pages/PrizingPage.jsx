@@ -69,7 +69,7 @@ const PrizingPage = () => {
                 key={idx}
                 src={url}
                 alt={`Banner ${idx + 1}`}
-                className="rounded-xl h-48 sm:h-56 md:h-60 w-[280px] sm:w-[320px] md:w-[360px] object-cover flex-shrink-0 shadow-md border border-gray-200 snap-center"
+                className="rounded-xl h-48 sm:h-56 md:h-60 mx-auto w-[280px] sm:w-[320px] md:w-[360px] object-cover flex-shrink-0 shadow-md border border-gray-200 snap-center"
               />
             ))}
           </div>

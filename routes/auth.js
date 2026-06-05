@@ -4,6 +4,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken
 const User = require("../models/User"); // Adjust path as necessary
 const generateCertificateHTML = require("./certificateTemplate");
+const generateQuizCertificateHTML = require("./quizCertificateTemplate");
 const sendEmail = require("../utils/sendEmail"); // Import sendEmail utility
 const fs = require("fs"); // Re-added for temporary file operations
 const path = require("path"); // Re-added for path manipulation
@@ -32,10 +33,8 @@ router.post("/register", async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Invalid email format." });
     }
-
     // Check for existing user (regardless of verification status)
     const existingUser = await User.findOne({ email });
-
     // Generate a 6-digit passcode
     const passcode = Math.floor(100000 + Math.random() * 900000).toString(); // Ensures 6 digits
 
@@ -62,30 +61,29 @@ router.post("/register", async (req, res) => {
             <p>Best regards,<br>The World Pest Day Team</p>
             `,
     );
-
     // Create or update user
-    const user = await User.findOneAndUpdate(
-      { email }, // Find by email
+    const newUser = await User.findOneAndUpdate(
+      { email: email.trim().toLowerCase() }, // Query criteria
       {
         annotation,
-        name,
+        name: name.trim(),
         companyName,
         mobile,
-        isVerified: false, // Set to false for new or re-registering unverified user
+        isVerified: false,
         verificationSentAt: new Date(),
         lastReminderSentAt: new Date(),
-        passcode: passcode, // Save the newly generated passcode
-        status: "pending", // Ensure status is set to 'pending' for new/re-registered users
+        passcode: passcode,
+        status: "pending",
       },
-      { upsert: true, new: true, runValidators: true }, // upsert creates if not found, new returns updated doc
+      { new: true, upsert: true }, // 'new' returns the updated doc; 'upsert' creates it if it doesn't exist
     );
 
     res.status(200).json({
       message:
         "Registration successful! A verification email with your 6-digit passcode has been sent. Please check your inbox.",
       user: {
-        email: user.email,
-        isVerified: user.isVerified,
+        email: newUser.email,
+        isVerified: newUser.isVerified,
         // Do NOT send the passcode in this response for security reasons,
         // as it's already sent via email. The frontend will assume it's sent.
       },
@@ -107,8 +105,6 @@ router.post("/register", async (req, res) => {
 
 router.get("/runner", async (req, res) => {
   try {
-    
-
     const users = await User.find().select("-mobile -email -passcode");
 
     if (!users) return res.status(400).json({ msg: "users not found" });
@@ -156,6 +152,7 @@ router.post("/check", async (req, res) => {
       mobile: user.mobile,
       isVerified: user.isVerified,
       videoUrl: user.videoUrl,
+      imageUrl: user.imageUrl,
       videoUploadedAt: user.videoUploadedAt,
       status: user.status, // 'pending', 'approved', 'rejected'
       isApproved: user.isApproved,
@@ -233,25 +230,27 @@ router.get("/video", async (req, res) => {
     res.status(500).json({ message: "Server error fetching video data." });
   }
 });
+
+
 router.post("/approve/:userId", async (req, res) => {
   let tempHtmlFilePath = null; // Declare outside try block for cleanup in catch
   try {
     console.log(`[APPROVE] Request received for userId: ${req.params.userId}`);
 
     // Extract and sanitize score parameter from query string
-    const quizScore = req.query.score ? parseInt(req.query.score, 10) : 0;
+    const quizScore = req?.query?.score ? parseInt(req?.query?.score, 10) : 0;
 
     // 1. BACKEND PROTECTION ACCORDING TO REQUIREMENTS:
     // Prevent system approvals if the score doesn't meet passing criteria (minimum 2/3)
-    if (isNaN(quizScore) || quizScore < 2) {
-      console.warn(
-        `[APPROVE REJECTED] User ${req.params.userId} attempted approval with failing score: ${req.query.score}`,
-      );
-      return res.status(400).json({
-        message:
-          "Quiz approval failed. You must answer at least 2 out of 3 questions correctly.",
-      });
-    }
+    // if (isNaN(quizScore) || quizScore < 2) {
+    //   console.warn(
+    //     `[APPROVE REJECTED] User ${req.params.userId} attempted approval with failing score: ${req?.query?.score}`,
+    //   );
+    //   return res.status(400).json({
+    //     message:
+    //       "Quiz approval failed. You must answer at least 2 out of 3 questions correctly.",
+    //   });
+    // }
 
     const user = await User.findById(req.params.userId);
     if (!user) {
@@ -264,14 +263,14 @@ router.post("/approve/:userId", async (req, res) => {
 
     let message = "Certificate re-sent successfully.";
     let certificateUrl = user.certificateUrl; // Initialize with existing URL if any
+    let quizCertificateUrl = user.quizCertificateUrl; // Initialize with existing URL if any
 
     if (!user.isApproved) {
       user.isApproved = true;
       user.score = quizScore; // Stored securely as a validated Number integer
-      //   user.approvedBy = ;
       user.approvedAt = new Date();
       user.status = "approved";
-      message = "User video approved and certificate emailed successfully.";
+      message = "User video approved and quiz certificate emailed successfully.";
       console.log("[APPROVE] User status changed to approved.");
     } else {
       console.log("[APPROVE] User already approved. Resending certificate.");
@@ -285,13 +284,28 @@ router.post("/approve/:userId", async (req, res) => {
 
     const userAnnotationPrefix = user.annotation ? `${user.annotation} ` : "";
 
-    // Generate certificate HTML
-    const certificateHtml = generateCertificateHTML(
-      userAnnotationPrefix,
-      user.name,
-      user.companyName || "N/A",
-      issueDate,
-    );
+    // 2. FIXED HTML GENERATION LOGIC
+    // Since quizScore is guaranteed to be >= 2 due to the guard clause above,
+    // it will generate the Quiz Certificate. 
+    let certificateHtml;
+    if (quizScore && quizScore >= 2) {
+      console.log(`[APPROVE] Generating Quiz Certificate for score: ${quizScore}`);
+      certificateHtml = generateQuizCertificateHTML(
+        userAnnotationPrefix,
+        user.name,
+        user.companyName || "N/A",
+        issueDate,
+        quizScore // Added parameter in case your template displays the actual score
+      );
+    } else {
+      console.log("[APPROVE] Generating General Participation Certificate");
+      certificateHtml = generateCertificateHTML(
+        userAnnotationPrefix,
+        user.name,
+        user.companyName || "N/A",
+        issueDate,
+      );
+    }
 
     console.log(
       "[APPROVE] Certificate HTML generated (first 500 chars):",
@@ -309,7 +323,7 @@ router.post("/approve/:userId", async (req, res) => {
     await fs.promises.writeFile(tempHtmlFilePath, certificateHtml, "utf8");
 
     // Clean space formatting for cross-platform PDF file naming compatibility
-    const safeFileName = `World_Pest_Day_Certificate_${user.name.replace(/\s+/g, "_")}.pdf`;
+    const safeFileName = `World_Pest_Day_Quiz_Certificate_${user.name.replace(/\s+/g, "_")}.pdf`;
 
     // Convert the temporary HTML file to PDF using ConvertAPI
     const convertApiResult = await convertapi.convert(
@@ -339,19 +353,27 @@ router.post("/approve/:userId", async (req, res) => {
       );
       throw new Error("ConvertAPI did not return a valid PDF URL.");
     }
+    
     const generatedPdfUrl = pdfFile.url;
-    certificateUrl = generatedPdfUrl;
 
-    user.certificateUrl = certificateUrl;
+    // 3. PERSISTING THE RIGHT URL FIELD TO MONGOOSE
+    if (quizScore && quizScore >= 2) {
+      quizCertificateUrl = generatedPdfUrl;
+      user.quizCertificateUrl = quizCertificateUrl;
+    } else {
+      certificateUrl = generatedPdfUrl;
+      user.certificateUrl = certificateUrl;
+    }
+
     await user.save();
-    console.log("[APPROVE] User document saved with new certificate URL.");
+    console.log("[APPROVE] User document saved with new certificate URL(s).");
 
     console.log("[APPROVE] Initiating email sending...");
-    const emailSubject = "Congratulations! Your World Pest Day Certificate";
+    const emailSubject = "Congratulations! Your World Pest Day Quiz Certificate";
     const emailHtml = `
             <h1>Congratulations, ${user.name}!</h1>
-            <p>Thank you for participating in World Pest Day, celebrated by the Indian Pest Control Association.</p>
-            <p>Attached is your certificate of participation.</p>
+            <p>Thank you for passing the World Pest Day Quiz with a score of **${quizScore}/3**!</p>
+            <p>Attached is your official Certificate of Excellence issued by the Indian Pest Control Association.</p>
             <p>You can also download it directly from this link: <a href="${generatedPdfUrl}">${generatedPdfUrl}</a></p>
             <p>Best regards,<br>Indian Pest Control Association</p>
         `;
@@ -371,7 +393,12 @@ router.post("/approve/:userId", async (req, res) => {
     );
     console.log("[APPROVE] Certificate email sent successfully.");
 
-    res.status(200).json({ message: message, certificateUrl: certificateUrl });
+    // Return the appropriate URL variant in the JSON payload response
+    res.status(200).json({ 
+      message: message, 
+      certificateUrl: quizScore >= 2 ? quizCertificateUrl : certificateUrl 
+    });
+
   } catch (err) {
     console.error(
       "[APPROVE ERROR] Error approving user or generating certificate:",

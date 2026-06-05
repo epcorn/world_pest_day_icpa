@@ -1,4 +1,4 @@
-module.exports = function generateCertificateHTML(
+module.exports = function generateQuizCertificateHTML(
   annotation,
   name,
   companyName,
@@ -348,7 +348,6 @@ module.exports = function generateCertificateHTML(
         font-size: 2.4em;
       }
 
-
       .from-text {
         margin-top: 1px;
         margin-bottom: 1px;
@@ -426,7 +425,7 @@ module.exports = function generateCertificateHTML(
       <p class="recipient-name">${safeAnnotation}. ${safeName}</p>
       <span class="from-text">from</span>
       <span class="recipient-company">${safeCompanyName}</span>
-      <p class="participation-text">for successfully participating in Photo/Video Contest in</p>
+      <p class="participation-text">for successfully Completing the Pest Quiz in</p>
       <p class="event-name">World Pest Day</p>
       <p class="celebrated-by">Celebrated by</p>
       <p class="organization-name">Indian Pest Control Association</p>

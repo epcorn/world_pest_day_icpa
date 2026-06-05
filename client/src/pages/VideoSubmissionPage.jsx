@@ -44,40 +44,63 @@ export default function VideoSubmissionPage() {
     }
     else {
       setVideoFile(null); // Clear selected file if invalid
-      setError('Please select a valid video file (e.g., MP4, MOV)! 🎥');
+      setError('Please select a valid video/image file (e.g., MP4, MOV,jpg,png)! 🎥');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!videoFile) {
-      setError('Please select a video file before submitting! 👆');
+      setError('Please select a file before submitting! 👆');
       return;
     }
     setUploading(true);
+    setError(''); // Clear any previous errors
+
     const formData = new FormData();
     formData.append('video', videoFile);
+
     try {
       const email = localStorage.getItem('userEmail');
       if (!email) {
         setError('No user email found. Please register again. 😞');
-        setUploading(false); // Ensure uploading state is reset
+        setUploading(false);
         return;
       }
-      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/upload?email=${encodeURIComponent(email)}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log(`Upload Progress: ${percentCompleted}%`);
-          // You could update a progress bar state here
-        },
-      });
+
+      // 1. Upload the video asset
+      const res = await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/upload?email=${encodeURIComponent(email)}`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            console.log(`Upload Progress: ${percentCompleted}%`);
+          },
+        }
+      );
+
+      // Update the state for UI tracking
       setUserVideo(res.data);
       setVideoFile(null);
-      alert('your MasterPiece uploaded successfully! Please play a Quiz. 🎉');
+
+      alert('Your MasterPiece uploaded successfully! Generating your certificate... 🚀');
+
+      // 2. CRITICAL FIX: Use 'res.data._id' directly instead of the async state variable
+      const uploadedUserId = res.data._id;
+
+      // 3. Issue the general participation certificate (No quiz score provided yet)
+      const certificateRes = await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/approve/${uploadedUserId}`
+      );
+
+      alert('Participation Certificate issued and emailed successfully! 🎉 Now go answer the Quiz questions.');
+      console.log('Certificate Data:', certificateRes.data);
+
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to upload video. Please try again. 😢');
-      console.error('Upload error:', err.response?.data);
+      setError(err.response?.data?.message || 'Failed to complete submission. Please try again. 😢');
+      console.error('Submission error:', err.response?.data || err);
     } finally {
       setUploading(false);
     }
@@ -223,9 +246,8 @@ export default function VideoSubmissionPage() {
               )}
               <button
                 type="submit"
-                disabled={uploading}
-                className={`w-full bg-gradient-to-r from-teal-600 to-cyan-700 text-white p-3 sm:p-4 rounded-lg font-bold text-lg sm:text-xl shadow-md hover:from-teal-700 hover:to-cyan-800 transition duration-300 ease-in-out transform hover:-translate-y-1 ${uploading ? 'opacity-60 cursor-not-allowed' : ''
-                  }`}
+                disabled={uploading || !userVideo?.isVerified}
+                className="w-full bg-gradient-to-r from-teal-600 to-cyan-700 text-white p-3 sm:p-4 rounded-lg font-bold text-lg sm:text-xl shadow-md hover:from-teal-700 hover:to-cyan-800 transition duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {uploading ? 'Uploading... please wait! ⏳' : 'Submit Now! 🚀'}
               </button>
@@ -259,25 +281,41 @@ export default function VideoSubmissionPage() {
                     </video>
                     : <img src={userVideo?.imageUrl} className='max-h-60 mx-auto  aspect-auto' alt="" />}
                 </div>
-                <div className="flex-grow text-base sm:text-lg text-gray-700 space-y-3 text-center md:text-left">
+                <div className="flex-grow text-base sm:text-lg text-gray-700 space-y-2 text-center md:text-left">
                   <p><strong>Uploader:</strong> <span className="font-medium text-gray-900">{userVideo?.name}</span></p>
                   <p><strong>Company:</strong> <span className="font-medium text-gray-900">{userVideo?.companyName || 'N/A'}</span></p>
                   <p><strong>Mobile:</strong> <span className="font-medium text-gray-900">{userVideo?.mobile}</span></p>
                   <p className="flex items-center justify-center md:justify-start">
                     <strong>Email verify:</strong> &nbsp;
                     <span className={`font-semibold ${userVideo?.isVerified ? 'text-green-600' : 'text-orange-600'}`}>
-                      {userVideo?.isVerified ? 'Approved! 🎉' : <button className='outline px-2 py-0.5 rounded-lg'>Pending</button>}
+                      {userVideo?.isVerified ? 'Verified! 🎉' : <button className='outline px-2 py-0.5 rounded-lg'>Pending</button>}
                     </span>
                   </p>
-                  <p className="flex items-center justify-center md:justify-start">
+                  {/* <p className="flex items-center justify-center md:justify-start">
                     <strong>Status:</strong> &nbsp;
                     <span className={`font-semibold ${userVideo?.isApproved ? 'text-green-600' : 'text-orange-600'}`}>
                       {userVideo.isApproved ? 'Approved! 🎉' : <button className='outline px-2 py-0.5 rounded-lg'>Pending</button>}
                     </span>
-                  </p>
-                  <p className="text-gray-500 text-xs sm:text-sm italic mt-4">
-                    {userVideo.certificateUrl ? "" : "Thank you for your contribution! Please play World Pest Quiz and get Certificate."}
-                  </p>
+                  </p> */}
+                  <div className="text-gray-500 text-xs sm:text-sm italic mt-2">
+                    {userVideo?.certificateUrl && (
+                      <div className="flex flex-col items-start gap-3 mt-2">
+                        <p className="not-italic text-gray-700 font-medium">
+                          Thank you for your contribution!
+                        </p>
+                        <a
+                          href={userVideo.certificateUrl}
+                          download
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block px-4 py-2 text-center text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:scale-95 shadow rounded-2xl transition duration-200 not-italic"
+                        >
+                          Click to Download Certificate
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -288,22 +326,34 @@ export default function VideoSubmissionPage() {
               </p>
             </div>
           )}
-          {userVideo?.isVerified && <div className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl text-center flex flex-col gap-5">
-            {!userVideo.isApproved &&
-              <>
-                <p className="text-gray-600 text-base sm:text-xl font-medium">
-                  Answer 2/3 Quiz Questions & get Approved
-                </p>
-                <QuizPage userVideo={userVideo} />
-              </>
-            }
-            {userVideo.certificateUrl &&
-              <>
-                <p className='text-2xl '>Congrates you got certificate 🎉🎉</p>
-                <a href={userVideo.certificateUrl} className='my-3  outline px-3 py-1 bg-gray-600 text-white w-fit mx-auto rounded-lg'>Certificate Url</a>
-              </>
-            }
-          </div>}
+          {userVideo?.isVerified && (
+            <div className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl text-center flex flex-col items-center gap-5">
+              {!userVideo.quizCertificateUrl ? (
+                <>
+                  <p className="text-gray-600 text-base sm:text-xl font-medium">
+                    Answer 2/3 Quiz Questions & get Approved
+                  </p>
+                  <QuizPage userVideo={userVideo} />
+                </>
+              ) : (
+                <>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-800">
+                    Congrats you got a certificate! 🎉
+                  </p>
+                  <a
+                    href={userVideo.quizCertificateUrl}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-5 py-2.5 bg-gray-700 hover:bg-gray-800 active:scale-95 text-white font-medium text-sm sm:text-base rounded-xl shadow transition duration-200"
+                  >
+                    Download Quiz Certificate
+                  </a>
+                </>
+              )}
+            </div>
+          )}
+
         </div>
 
         {/* Footer */}
@@ -311,8 +361,6 @@ export default function VideoSubmissionPage() {
           &copy; {new Date().getFullYear()} Indian Pest Control Association. All rights reserved.
         </footer>
       </div>
-
-
     </div>
   );
 }

@@ -188,10 +188,11 @@ const LandingPage = () => {
     setStatusCheckPasscode('');
   };
 
+  console.log(existingUser)
   return (
     <div className="relative min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center gap-5 p-4 sm:p-6 bg-gradient-to-br from-green-50 to-blue-100 overflow-hidden">
       {/* Animated Banner for Prizing with Sliding Images */}
-     
+
       <HeroSlider formRef={formRef} navigate={navigate} />
 
       <div className="relative z-10 w-full max-w-4xl text-center mb-8 md:mb-16 px-4 outline outline-gray-300 rounded-2xl overflow-hidden">
@@ -237,13 +238,13 @@ const LandingPage = () => {
 
         {existingUser ? (
           <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted Video</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted File</h2>
             <div className="text-left space-y-2 text-base sm:text-lg text-gray-700">
               <p><strong>Name:</strong> <span className="font-medium text-gray-900">{existingUser.name}</span></p>
               <p><strong>Company:</strong> <span className="font-medium text-gray-900">{existingUser.companyName || 'N/A'}</span></p>
               <p><strong>Mobile:</strong> <span className="font-medium text-gray-900">{existingUser.mobile}</span></p>
             </div>
-            {existingUser.videoUrl ? (
+            {existingUser?.videoUrl || existingUser?.imageUrl ? (
               <>
                 <div className="mt-6 sm:mt-8 rounded-lg overflow-hidden border border-gray-300 shadow-md">
                   <video
@@ -252,22 +253,6 @@ const LandingPage = () => {
                     className="w-full h-auto object-cover"
                   />
                 </div>
-                {existingUser.isApproved ? (
-                  <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-green-600">
-                    Your video has been approved! 🎉
-                    {existingUser.approvedAt && (
-                      <span className="block text-sm sm:text-lg font-medium text-green-700 mt-1">
-                        Approved on: {new Date(existingUser.approvedAt).toLocaleDateString('en-US', {
-                          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
-                        })}
-                      </span>
-                    )}
-                  </p>
-                ) : (
-                  <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-yellow-600">
-                    Your video is pending approval.⏳
-                  </p>
-                )}
               </>
             ) : (
               <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-red-600">
@@ -295,7 +280,7 @@ const LandingPage = () => {
             {showStatusCheckForm ? (
               <form onSubmit={handleSubmitStatusCheck} className="space-y-4 sm:space-y-6">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">
-                  Check Video Status
+                  Check Status
                 </h2>
 
                 {statusCheckError && (
@@ -339,7 +324,7 @@ const LandingPage = () => {
                   className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 ${loading ? 'opacity-60 cursor-not-allowed' : ''
                     }`}
                 >
-                  {loading ? 'Checking Status...' : 'Check Status'}
+                  {loading ? 'Submitting...' : 'Submit'}
                 </button>
                 <button
                   type="button"
@@ -350,7 +335,7 @@ const LandingPage = () => {
                 </button>
               </form>
             ) : (
-              <form ref={formRef} onSubmit={handleSubmitMainForm} className="space-y-4 sm:space-y-6">
+              <form ref={formRef} onSubmit={handleSubmitMainForm} className="space-y-2 sm:space-y-3">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">
                   Join the Celebration
                 </h2>
@@ -416,7 +401,7 @@ const LandingPage = () => {
                   onClick={toggleStatusCheckForm}
                   className="w-full mt-3 sm:mt-4 text-blue-600 hover:text-blue-800 font-semibold transition duration-200 text-sm sm:text-base"
                 >
-                  Already registered? Check the status of your video
+                  Already registered? Check the status
                 </button>
               </form>
             )}

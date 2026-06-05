@@ -24,18 +24,18 @@ function QuizPage({ userVideo, onSubmissionSuccess }) {
     const submitQuizResult = async () => {
       // FIX: Ensure we match userVideo._id accurately and don't re-trigger while loading/successful
       if (count === 3 && score >= 2 && userVideo?._id && !submitStatus.success && !submitStatus.loading) {
-        
+
         setSubmitStatus(prev => ({ ...prev, loading: true, error: null }));
-        
+
         try {
           console.log("Submitting quiz score for user:", userVideo._id);
           const res = await axios.post(
             `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/approve/${userVideo._id}?score=${score}`
           );
           console.log("Approval response:", res.data);
-          
+
           setSubmitStatus({ loading: false, error: null, success: true });
-          
+
           if (onSubmissionSuccess) {
             onSubmissionSuccess();
           }
@@ -68,12 +68,12 @@ function QuizPage({ userVideo, onSubmissionSuccess }) {
     }, 2500);
   };
 
-  const handleRestart = () => { 
+  const handleRestart = () => {
     setCount(0);
     setScore(0);
     setSelectedOption(null);
     setSubmitStatus({ loading: false, error: null, success: false });
-    
+
     let rand;
     do {
       rand = Math.floor(Math.random() * quiz.questions.length);
@@ -81,16 +81,16 @@ function QuizPage({ userVideo, onSubmissionSuccess }) {
     setCurrQuestion(rand);
   };
 
-  if (count >= 3) { 
+  if (count >= 3) {
     return (
       <article className="p-4 text-center max-w-xl mx-auto">
         <h2 className="text-xl font-bold">Quiz Completed! 🎉</h2>
         <p className="mt-2 text-gray-600">You answered {score}/3 questions correctly.</p>
-        
+
         {score >= 2 && (
           <div className="mt-4 p-3 rounded-lg bg-gray-50 border border-gray-200">
             {submitStatus.loading && <p className="text-blue-500 animate-pulse">Submitting approval status...</p>}
-            {submitStatus.success && <p className="text-green-600 font-medium">Approved and find Certificate on Email 🚀</p>}
+            {submitStatus.success && <a href={userVideo.quizCertificateUrl} className="text-green-600 font-medium">Approved and find Certificate on Email or Click to Download 🚀</a>}
             {submitStatus.error && <p className="text-red-500">{submitStatus.error}</p>}
           </div>
         )}

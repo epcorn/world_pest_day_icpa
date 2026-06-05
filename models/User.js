@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
   },
   approvedAt: { type: Date, default: null },
   certificateUrl: { type: String, default: null },
+  quizCertificateUrl: { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
   // --- NEW FIELD: passcode ---
   passcode: {
