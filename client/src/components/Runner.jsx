@@ -49,7 +49,7 @@ export default Runner
 
 function StatGroup({ title, data, highlight }) {
   return (
-    <div className={`flex items-center gap-6 text-sm font-medium rounded-md pr-2 ${highlight ? "ring-2 ring-cyan-500 bg-cyan-900/40"
+    <div className={`flex items-center gap-6 text-sm font-medium rounded-md pr-2 ${highlight ? "ring-1 ring-cyan-400 bg-cyan-900/40"
       : "ring-1 ring-cyan-700/50 bg-cyan-950/20"}`}>
       <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${highlight ? 'bg-cyan-500 text-cyan-950' : 'bg-cyan-800/60 text-cyan-300 border border-cyan-700/50'
         }`}>

@@ -295,7 +295,7 @@ export default function VideoSubmissionPage() {
               <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 sm:h-16 sm:w-16 mb-4"></div>
               <p className="text-gray-600 text-base sm:text-xl font-medium">Loading your video submission... 🔄</p>
             </div>
-          ) : userVideo && userVideo?.videoUrl || userVideo?.imageUrl ? ( // Ensure videoUrl exists before rendering video player
+          ) : userVideo.isVerified && userVideo?.videoUrl || userVideo?.imageUrl ? ( // Ensure videoUrl exists before rendering video player
             <div className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-purple-200">
               <h2 className="text-2xl sm:text-3xl font-bold text-purple-700 mb-6 text-center flex items-center justify-center">
                 <span className="mr-3 text-3xl sm:text-4xl">🎬</span> Your Awesome Submission!
@@ -323,31 +323,6 @@ export default function VideoSubmissionPage() {
                       {userVideo?.isVerified ? 'Verified! 🎉' : <button className='outline px-2 py-0.5 rounded-lg'>Pending</button>}
                     </span>
                   </p>
-                  {/* <p className="flex items-center justify-center md:justify-start">
-                    <strong>Status:</strong> &nbsp;
-                    <span className={`font-semibold ${userVideo?.isApproved ? 'text-green-600' : 'text-orange-600'}`}>
-                      {userVideo.isApproved ? 'Approved! 🎉' : <button className='outline px-2 py-0.5 rounded-lg'>Pending</button>}
-                    </span>
-                  </p> */}
-                  <div className="text-gray-500 text-xs sm:text-sm italic mt-2">
-                    {userVideo?.certificateUrl && (
-                      <div className="flex flex-col items-start gap-3 mt-2">
-                        <p className="not-italic text-gray-700 font-medium">
-                          Thank you for your contribution!
-                        </p>
-                        <a
-                          href={userVideo.certificateUrl}
-                          download
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block px-4 py-2 text-center text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:scale-95 shadow rounded-2xl transition duration-200 not-italic"
-                        >
-                          Click to Download Certificate
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
                 </div>
               </div>
             </div>
