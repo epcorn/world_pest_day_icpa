@@ -58,6 +58,7 @@ router.post("/register", async (req, res) => {
             <p>Please verify your email by clicking this link: <a href="${verifyLink}">Verify Email Address</a></p>
             <p>Your unique 6-digit passcode for checking your video submission status is: <strong>${passcode}</strong></p>
             <p>Please keep this passcode safe. You will need it along with your email to view your video status on the landing page.</p>
+            <p>Validation link is valid for 1hr.</p>
             <p>Best regards,<br>The World Pest Day Team</p>
             `,
     );
@@ -126,10 +127,8 @@ router.post("/check", async (req, res) => {
       message: "Email and 6-digit passcode are required to check status.",
     });
   }
-
   try {
     const user = await User.findOne({ email });
-
     if (!user) {
       // Do not reveal if email exists or not for security
       return res
@@ -139,7 +138,9 @@ router.post("/check", async (req, res) => {
 
     // Simple string comparison for passcode (as requested, no bcrypt)
     if (user.passcode !== passcode) {
-      return res.status(401).json({ message: "Invalid passcode." });
+      return res
+        .status(401)
+        .json({ message: "Invalid passcode." });
     }
 
     // If email and passcode match, return the user details for frontend display
@@ -231,7 +232,6 @@ router.get("/video", async (req, res) => {
   }
 });
 
-
 router.post("/approve/:userId", async (req, res) => {
   let tempHtmlFilePath = null; // Declare outside try block for cleanup in catch
   try {
@@ -270,7 +270,8 @@ router.post("/approve/:userId", async (req, res) => {
       user.score = quizScore; // Stored securely as a validated Number integer
       user.approvedAt = new Date();
       user.status = "approved";
-      message = "User video approved and quiz certificate emailed successfully.";
+      message =
+        "User video approved and quiz certificate emailed successfully.";
       console.log("[APPROVE] User status changed to approved.");
     } else {
       console.log("[APPROVE] User already approved. Resending certificate.");
@@ -286,16 +287,18 @@ router.post("/approve/:userId", async (req, res) => {
 
     // 2. FIXED HTML GENERATION LOGIC
     // Since quizScore is guaranteed to be >= 2 due to the guard clause above,
-    // it will generate the Quiz Certificate. 
+    // it will generate the Quiz Certificate.
     let certificateHtml;
     if (quizScore && quizScore >= 2) {
-      console.log(`[APPROVE] Generating Quiz Certificate for score: ${quizScore}`);
+      console.log(
+        `[APPROVE] Generating Quiz Certificate for score: ${quizScore}`,
+      );
       certificateHtml = generateQuizCertificateHTML(
         userAnnotationPrefix,
         user.name,
         user.companyName || "N/A",
         issueDate,
-        quizScore // Added parameter in case your template displays the actual score
+        quizScore, // Added parameter in case your template displays the actual score
       );
     } else {
       console.log("[APPROVE] Generating General Participation Certificate");
@@ -353,7 +356,7 @@ router.post("/approve/:userId", async (req, res) => {
       );
       throw new Error("ConvertAPI did not return a valid PDF URL.");
     }
-    
+
     const generatedPdfUrl = pdfFile.url;
 
     // 3. PERSISTING THE RIGHT URL FIELD TO MONGOOSE
@@ -369,10 +372,11 @@ router.post("/approve/:userId", async (req, res) => {
     console.log("[APPROVE] User document saved with new certificate URL(s).");
 
     console.log("[APPROVE] Initiating email sending...");
-    const emailSubject = "Congratulations! Your World Pest Day Quiz Certificate";
+    const emailSubject =
+      "Congratulations! Your World Pest Day Quiz Certificate";
     const emailHtml = `
             <h1>Congratulations, ${user.name}!</h1>
-            <p>Thank you for passing the World Pest Day Quiz with a score of **${quizScore}/3**!</p>
+            <p>Thank you for passing the World Pest Day Quiz with a score of ${quizScore}/3</p>
             <p>Attached is your official Certificate of Excellence issued by the Indian Pest Control Association.</p>
             <p>You can also download it directly from this link: <a href="${generatedPdfUrl}">${generatedPdfUrl}</a></p>
             <p>Best regards,<br>Indian Pest Control Association</p>
@@ -394,11 +398,10 @@ router.post("/approve/:userId", async (req, res) => {
     console.log("[APPROVE] Certificate email sent successfully.");
 
     // Return the appropriate URL variant in the JSON payload response
-    res.status(200).json({ 
-      message: message, 
-      certificateUrl: quizScore >= 2 ? quizCertificateUrl : certificateUrl 
+    res.status(200).json({
+      message: message,
+      certificateUrl: quizScore >= 2 ? quizCertificateUrl : certificateUrl,
     });
-
   } catch (err) {
     console.error(
       "[APPROVE ERROR] Error approving user or generating certificate:",

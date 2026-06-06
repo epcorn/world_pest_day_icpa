@@ -240,18 +240,18 @@ const LandingPage = () => {
           <div className="text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted File</h2>
             <div className="text-left space-y-2 text-base sm:text-lg text-gray-700">
-              <p><strong>Name:</strong> <span className="font-medium text-gray-900">{existingUser.name}</span></p>
+              <p><strong>Name:</strong> <span className="font-medium text-gray-900">{existingUser?.name}</span></p>
               <p><strong>Company:</strong> <span className="font-medium text-gray-900">{existingUser.companyName || 'N/A'}</span></p>
               <p><strong>Mobile:</strong> <span className="font-medium text-gray-900">{existingUser.mobile}</span></p>
             </div>
             {existingUser?.videoUrl || existingUser?.imageUrl ? (
               <>
                 <div className="mt-6 sm:mt-8 rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                  <video
+                  {existingUser.videoUrl ? <video
                     controls
                     src={existingUser.videoUrl}
                     className="w-full h-auto object-cover"
-                  />
+                  /> : <img src={existingUser.imageUrl} className='max-h-80 mx-auto' alt="" />}
                 </div>
               </>
             ) : (
