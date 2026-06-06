@@ -498,7 +498,7 @@ router.get("/verify", async (req, res) => {
       return res.status(404).send("User not found for verification.");
     }
 
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const clientUrl = "https://wpd.webconnectipca.com";
 
     if (user.isVerified) {
       return res.redirect(`${clientUrl}/video-submission?verified=already`);
