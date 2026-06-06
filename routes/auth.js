@@ -260,13 +260,11 @@ router.get("/runner", async (req, res) => {
   try {
     const currentYear = new Date().getFullYear();
 
-    // Define strict year boundaries matching your frontend logic
     const startOfYear = new Date(`${currentYear}-01-01T00:00:00.000Z`);
     const endOfYear = new Date(`${currentYear}-12-31T23:59:59.999Z`);
     const startOfPrevYear = new Date(`${currentYear - 1}-01-01T00:00:00.000Z`);
     const endOfPrevYear = new Date(`${currentYear - 1}-12-31T23:59:59.999Z`);
 
-    // Let MongoDB aggregate the numbers on the database layer
     const stats = await User.aggregate([
       {
         $match: {
@@ -276,7 +274,8 @@ router.get("/runner", async (req, res) => {
       {
         $group: {
           _id: null,
-          // This Year Metrics
+
+          // ✅ This Year Metrics
           thisYearJoined: {
             $sum: {
               $cond: [
@@ -298,12 +297,8 @@ router.get("/runner", async (req, res) => {
                   $and: [
                     { $gte: ["$createdAt", startOfYear] },
                     { $lte: ["$createdAt", endOfYear] },
-                    {
-                      $and: [
-                        { $ifNull: ["$certificateUrl", false] },
-                        { $ne: ["$certificateUrl", ""] },
-                      ],
-                    },
+                    { $ifNull: ["$certificateUrl", false] },
+                    { $ne: ["$certificateUrl", ""] },
                   ],
                 },
                 1,
@@ -327,14 +322,16 @@ router.get("/runner", async (req, res) => {
               ],
             },
           },
+
+          // ✅ FIXED: was using startOfPrevYear/endOfPrevYear instead of this year
           thisYearImages: {
             $sum: {
               $cond: [
                 {
                   $and: [
-                    { $gte: ["$createdAt", startOfPrevYear] },
-                    { $lte: ["$createdAt", endOfPrevYear] },
-                    { $ifNull: ["$imageUrl", false] }, // ✅ guards null/missing
+                    { $gte: ["$createdAt", startOfYear] }, // 🔴 was startOfPrevYear
+                    { $lte: ["$createdAt", endOfYear] }, // 🔴 was endOfPrevYear
+                    { $ifNull: ["$imageUrl", false] },
                     { $ne: ["$imageUrl", ""] },
                   ],
                 },
@@ -344,7 +341,7 @@ router.get("/runner", async (req, res) => {
             },
           },
 
-          // Last Year Metrics
+          // ✅ Last Year Metrics
           prevYearJoined: {
             $sum: {
               $cond: [
@@ -366,12 +363,8 @@ router.get("/runner", async (req, res) => {
                   $and: [
                     { $gte: ["$createdAt", startOfPrevYear] },
                     { $lte: ["$createdAt", endOfPrevYear] },
-                    {
-                      $and: [
-                        { $ifNull: ["$certificateUrl", false] },
-                        { $ne: ["$certificateUrl", ""] },
-                      ],
-                    },
+                    { $ifNull: ["$certificateUrl", false] },
+                    { $ne: ["$certificateUrl", ""] },
                   ],
                 },
                 1,
@@ -379,6 +372,8 @@ router.get("/runner", async (req, res) => {
               ],
             },
           },
+
+          // ✅ FIXED: added $ifNull + $ne "" check (was only $ne null)
           prevYearVideos: {
             $sum: {
               $cond: [
@@ -386,7 +381,8 @@ router.get("/runner", async (req, res) => {
                   $and: [
                     { $gte: ["$createdAt", startOfPrevYear] },
                     { $lte: ["$createdAt", endOfPrevYear] },
-                    { $ne: ["$videoUrl", null] },
+                    { $ifNull: ["$videoUrl", false] }, // 🔴 was missing
+                    { $ne: ["$videoUrl", ""] }, // 🔴 was missing
                   ],
                 },
                 1,
@@ -394,6 +390,8 @@ router.get("/runner", async (req, res) => {
               ],
             },
           },
+
+          // ✅ FIXED: added $ifNull + $ne "" check (was only $ne null)
           prevYearImages: {
             $sum: {
               $cond: [
@@ -401,7 +399,8 @@ router.get("/runner", async (req, res) => {
                   $and: [
                     { $gte: ["$createdAt", startOfPrevYear] },
                     { $lte: ["$createdAt", endOfPrevYear] },
-                    { $ne: ["$imageUrl", null] },
+                    { $ifNull: ["$imageUrl", false] }, // 🔴 was missing
+                    { $ne: ["$imageUrl", ""] }, // 🔴 was missing
                   ],
                 },
                 1,
@@ -415,7 +414,6 @@ router.get("/runner", async (req, res) => {
 
     const data = stats[0] || {};
 
-    // Standardize the response array structure to match your React state expectations
     return res.status(200).json([
       {
         certificateIssued: data.thisYearCertificates || 0,
