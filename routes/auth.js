@@ -170,14 +170,23 @@ router.post("/quiz/:email", async (req, res) => {
 
     // ✅ Fetch PDF as buffer for reliable attachment
     console.log("[QUIZ] Fetching PDF buffer for email attachment...");
-    const pdfResponse = await axios.get(generatedPdfUrl, {
-      responseType: "arraybuffer",
+    // ✅ Fetch PDF buffer using built-in https — no axios needed
+    const pdfBuffer = await new Promise((resolve, reject) => {
+      const https = require("https");
+      https
+        .get(generatedPdfUrl, (response) => {
+          const chunks = [];
+          response.on("data", (chunk) => chunks.push(chunk));
+          response.on("end", () => resolve(Buffer.concat(chunks)));
+          response.on("error", reject);
+        })
+        .on("error", reject);
     });
 
     const attachments = [
       {
         filename: safeFileName,
-        content: Buffer.from(pdfResponse.data),
+        content: pdfBuffer, // ✅ was pdfResponse.data
         contentType: "application/pdf",
       },
     ];
@@ -215,13 +224,14 @@ router.post("/quiz/:email", async (req, res) => {
       attachments,
     );
 
-    console.log("[QUIZ] Quiz certificate processed and email dispatched successfully.");
+    console.log(
+      "[QUIZ] Quiz certificate processed and email dispatched successfully.",
+    );
 
     return res.status(200).json({
       message: "Quiz processed and certificate emailed successfully!",
       certificateUrl: generatedPdfUrl,
     });
-
   } catch (error) {
     console.error("[QUIZ ERROR]:", error);
     return res.status(500).json({
@@ -232,9 +242,14 @@ router.post("/quiz/:email", async (req, res) => {
     if (tempHtmlFilePath) {
       try {
         await fs.promises.unlink(tempHtmlFilePath);
-        console.log(`[QUIZ] Cleaned up temporary HTML file: ${tempHtmlFilePath}`);
+        console.log(
+          `[QUIZ] Cleaned up temporary HTML file: ${tempHtmlFilePath}`,
+        );
       } catch (cleanupErr) {
-        console.error(`[QUIZ ERROR] Failed to clean up temporary file:`, cleanupErr);
+        console.error(
+          `[QUIZ ERROR] Failed to clean up temporary file:`,
+          cleanupErr,
+        );
       }
     }
   }
