@@ -21,6 +21,7 @@ function Runner() {
     getRunnerInfo();
   }, []);
 
+  console.log(runnerData)
   return (
     <div className="w-full bg-cyan-950 text-cyan-100 py-3 overflow-hidden border-y border-cyan-800 shadow-inner select-none">
       {/* Container holding the dual lists for seamless looping */}

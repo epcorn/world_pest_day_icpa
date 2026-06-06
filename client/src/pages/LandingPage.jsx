@@ -403,7 +403,7 @@ const LandingPage = () => {
       {/* How to Submit a Video Section */}
       <div className="relative z-10 mt-12 w-full max-w-4xl text-center px-4">
         <h2 className="text-4xl font-extrabold text-gray-900 mb-8">
-          How to Submit Your Video
+          How to Submit Your Photo / Video
         </h2>
         <div className="bg-white bg-opacity-95 p-6 md:p-10 rounded-xl shadow-2xl ring-4 ring-blue-300 ring-opacity-50">
           <div className="aspect-video w-full rounded-lg overflow-hidden shadow-xl border-4 border-green-500">
@@ -417,7 +417,7 @@ const LandingPage = () => {
             </video>
           </div>
           <p className="mt-6 text-lg text-gray-700">
-            Watch this quick guide to understand the video submission process. Make sure your video adheres to all guidelines for a smooth submission!
+            Watch this quick guide to understand the video submission process. Make sure your Photo / Video adheres to all guidelines for a smooth submission!
           </p>
         </div>
       </div>

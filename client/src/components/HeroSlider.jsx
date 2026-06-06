@@ -35,7 +35,7 @@ function HeroSlider({ navigate, formRef }) {
             </span>
 
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg leading-tight">
-              Submit Your Video &<br className="hidden sm:block" /> Win Amazing Prizes!
+              Submit Your Photo / Video &<br className="hidden sm:block" /> Win Amazing Prizes!
             </h2>
 
             <p className="text-base sm:text-lg text-blue-100 max-w-xl leading-relaxed">

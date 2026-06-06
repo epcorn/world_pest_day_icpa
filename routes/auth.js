@@ -318,7 +318,8 @@ router.get("/runner", async (req, res) => {
                   $and: [
                     { $gte: ["$createdAt", startOfYear] },
                     { $lte: ["$createdAt", endOfYear] },
-                    { $ne: ["$videoUrl", null] },
+                    { $ifNull: ["$videoUrl", false] },
+                    { $ne: ["$videoUrl", ""] },
                   ],
                 },
                 1,
@@ -331,9 +332,10 @@ router.get("/runner", async (req, res) => {
               $cond: [
                 {
                   $and: [
-                    { $gte: ["$createdAt", startOfYear] },
-                    { $lte: ["$createdAt", endOfYear] },
-                    { $ne: ["$imageUrl", null] },
+                    { $gte: ["$createdAt", startOfPrevYear] },
+                    { $lte: ["$createdAt", endOfPrevYear] },
+                    { $ifNull: ["$imageUrl", false] }, // ✅ guards null/missing
+                    { $ne: ["$imageUrl", ""] },
                   ],
                 },
                 1,

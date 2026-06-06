@@ -12,7 +12,7 @@ const PrizingPage = () => {
           <span>Recognition & Rewards!</span>
         </h2>
         <p className="text-base sm:text-lg leading-relaxed mb-8 sm:mb-10 max-w-3xl mx-auto text-gray-700">
-          As we approach World Pest Day, we invite each member to create and <strong>submit a 2 minute video</strong> on any of the suggested themes. Showcase your contributions to public health, safety, and environmental well-being through creativity and collaboration!
+          As we approach World Pest Day, we invite each member to create and <strong>submit a 2 minute video or photo</strong> on any of the suggested themes. Showcase your contributions to public health, safety, and environmental well-being through creativity and collaboration!
         </p>
 
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-6 border-b pb-3">Suggested Topics:</h3>
@@ -25,24 +25,24 @@ const PrizingPage = () => {
           <TopicCard title="Knowledge Sharing with Industry Peers" icon={BookOpen} />
         </div>
 
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-700 mb-6 border-b pb-3">How Your Video Will Be Recognized:</h3>
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-700 mb-6 border-b pb-3">How Your Photo / Video Will Be Recognized:</h3>
         <div className="space-y-4 sm:space-y-6">
           <RewardItem
             title="Showcased at Indiapest 2026"
-            description="Your video will be featured at the prestigious Indiapest 2025 event in Kathmandu, gaining exposure to industry leaders and peers."
+            description="Your Photo / Video will be featured at the prestigious Indiapest 2026 event in Chennai, gaining exposure to industry leaders and peers."
             icon={Youtube}
             color="text-red-600"
           />
           <RewardItem
             title="A Heritage Escape to Mahabalipuram"
-            description="The top video will be awarded a complimentary tour couple pass to the historic coastal town of Mahabalipuram, home to stunning monuments rich culture, and breathtaking seasde views
+            description="The top Photo / Video will be awarded a complimentary tour couple pass to the historic coastal town of Mahabalipuram, home to stunning monuments rich culture, and breathtaking seasde views
             "
             icon={GiByzantinTemple}
             color="text-orange-600"
           />
           <RewardItem
             title="Featured on IPCA’s Official Social Media"
-            description="Gain wider visibility as your winning video is promoted across IPCA's official social media platforms."
+            description="Gain wider visibility as your winning Photo / Video is promoted across IPCA's official social media platforms."
             icon={Share2}
             color="text-green-600"
           />
