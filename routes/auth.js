@@ -201,6 +201,7 @@ router.post("/quiz/:email", async (req, res) => {
   </p>
   <p>Attached is your official Certificate, issued by the Indian Pest Control Association (IPCA), in recognition of your
     participation and achievement.</p>
+    <a href="${user.quizCertificateUrl}">certificate Link </a>
   <p>Now that you've completed the quiz, we invite you to showcase your creativity and passion for the pest management
     industry by participating in our Photo and Video Contest.</p>
   <div>
@@ -218,7 +219,7 @@ router.post("/quiz/:email", async (req, res) => {
   <p>Please keep this passcode safe. You will need it along with your email to view your video status on the landing page.</p>
   <p>We look forward to seeing your inspiring photos and videos. Exciting prizes await the winners!</p>
   <p>Thank you for supporting World Pest Day and helping promote a safer, healthier, and more informed community.</p>
-  <p>Validation link is valid for 1 hour.</p>
+  <p>verification link is valid for 1 hour.</p>
   <p>Best regards,<br><strong>Indian Pest Control Association <br>(IPCA)</strong></p>
       `,
       attachments,
@@ -727,6 +728,8 @@ router.get("/singleUser/:email", async (req, res) => {
   try {
     const user = await User.findOne({ email: email.trim().toLowerCase() }); // ✅ await not new
     if (!user) return res.status(404).json({ message: "User not found." });
+
+    res.set("Cache-Control", "no-store");
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Server error." });

@@ -14,7 +14,7 @@ function getRandomStartIndex(exclude = []) {
   return rand;
 }
 
-function QuizPage({ userVideo, onSubmissionSuccess }) {
+function QuizPage({ onSubmissionSuccess }) {
   const [questionIndex, setQuestionIndex] = useState(() => getRandomStartIndex([21, 23, 24]));
   const [answers, setAnswers] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);

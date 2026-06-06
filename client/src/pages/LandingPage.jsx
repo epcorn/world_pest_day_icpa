@@ -23,6 +23,7 @@ const LandingPage = () => {
   });
 
   const [registered, setRegistered] = useState(false);
+  const [user, setUser] = useState({})
 
   const [loading, setLoading] = useState(false);
   const [mainFormError, setMainFormError] = useState('');
@@ -46,6 +47,15 @@ const LandingPage = () => {
   // Video URL for submission instructions
   const submissionVideoUrl = 'https://res.cloudinary.com/dbzucdgf0/video/upload/v1749132949/New_Tab_-_Google_Chrome_2025-06-05_19-31-05_1_pdlwsp.mp4';
 
+  const userEmail = localStorage.getItem("userEmail");
+  useEffect(() => {
+    const getdata = async () => {
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/singleUser/${userEmail}`)
+
+      setUser(res.data)
+    }
+    getdata()
+  }, [])
 
   const showMessage = (message) => {
     setCustomAlertMessage(message);
@@ -187,7 +197,7 @@ const LandingPage = () => {
     setStatusCheckPasscode('');
   };
 
-  console.log(existingUser)
+  console.log(user)
   return (
     <div className="relative min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center gap-5 p-4 sm:p-6 bg-gradient-to-br from-green-50 to-blue-100 overflow-hidden">
       {/* Animated Banner for Prizing with Sliding Images */}
@@ -228,158 +238,158 @@ const LandingPage = () => {
             Due to multiple requests, we are extending the video submission deadline to give everyone a fair chance to participate.  </p>
         </div> */}
 
-      
+
       <div className="relative z-10 bg-white bg-opacity-95 p-6 md:p-12 rounded-xl shadow-2xl ring-4 ring-green-300 ring-opacity-50 w-11/12 max-w-md mx-auto">
-  {showCustomAlert && (
-    <div className="bg-blue-100 text-blue-700 p-3 rounded-lg text-center font-medium border border-blue-200 mb-6 animate-pulse-once">
-      {customAlertMessage}
-    </div>
-  )}
-
-  {/* ✅ Show quiz after registration, in place of the form */}
-  {registered ? (
-    <div className="flex flex-col items-center gap-5 text-center">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-        🎉 Registered! Now take the Quiz
-      </h2>
-      <p className="text-gray-600 text-base sm:text-lg">
-        Answer 2/3 questions correctly to get verified and unlock video submission.
-      </p>
-      <QuizPage userVideo={null} />
-    </div>
-
-  ) : existingUser ? (
-    <div className="text-center">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted File</h2>
-      <div className="text-left space-y-2 text-base sm:text-lg text-gray-700">
-        <p><strong>Name:</strong> <span className="font-medium text-gray-900">{existingUser?.name}</span></p>
-        <p><strong>Company:</strong> <span className="font-medium text-gray-900">{existingUser.companyName || 'N/A'}</span></p>
-        <p><strong>Mobile:</strong> <span className="font-medium text-gray-900">{existingUser.mobile}</span></p>
-      </div>
-      {existingUser?.videoUrl || existingUser?.imageUrl ? (
-        <div className="mt-6 sm:mt-8 rounded-lg overflow-hidden border border-gray-300 shadow-md">
-          {existingUser.videoUrl
-            ? <video controls src={existingUser.videoUrl} className="w-full h-auto object-cover" />
-            : <img src={existingUser.imageUrl} className='max-h-80 mx-auto' alt="" />
-          }
-        </div>
-      ) : (
-        <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-red-600">
-          No video submitted yet.
-          <button
-            onClick={() => navigate('/video-submission')}
-            className="block mx-auto mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200"
-          >
-            Go to Video Submission
-          </button>
-        </p>
-      )}
-      <p className={`mt-2 text-sm sm:text-md font-semibold ${existingUser.isVerified ? 'text-blue-600' : 'text-red-600'}`}>
-        {existingUser.isVerified ? 'Email is verified.' : 'Email is not yet verified. Please check your inbox!'}
-      </p>
-      <button onClick={toggleStatusCheckForm} className="mt-6 sm:mt-8 text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
-        Go Back / Register New
-      </button>
-    </div>
-
-  ) : (
-    <>
-      {showStatusCheckForm ? (
-        <form onSubmit={handleSubmitStatusCheck} className="space-y-4 sm:space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">Check Status</h2>
-          {statusCheckError && (
-            <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 text-sm sm:text-base">
-              {statusCheckError}
-            </p>
-          )}
-          <div className="relative">
-            <label htmlFor="statusCheckEmail" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
-              Email Address<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email" id="statusCheckEmail" name="statusCheckEmail"
-              value={statusCheckEmail} onChange={handleStatusCheckChange}
-              className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 text-sm sm:text-base"
-              required placeholder="Enter your email..."
-            />
+        {showCustomAlert && (
+          <div className="bg-blue-100 text-blue-700 p-3 rounded-lg text-center font-medium border border-blue-200 mb-6 animate-pulse-once">
+            {customAlertMessage}
           </div>
-          <div className="relative">
-            <label htmlFor="statusCheckPasscode" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
-              6-Digit Passcode<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text" id="statusCheckPasscode" name="statusCheckPasscode"
-              value={statusCheckPasscode} onChange={handleStatusCheckChange}
-              maxLength="6"
-              className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 text-sm sm:text-base"
-              required placeholder="Enter your 6-digit passcode..."
-            />
-          </div>
-          <button type="submit" disabled={loading}
-            className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
-            {loading ? 'Submitting...' : 'Submit'}
-          </button>
-          <button type="button" onClick={toggleStatusCheckForm}
-            className="w-full mt-3 sm:mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm sm:text-base">
-            Back to Registration
-          </button>
-        </form>
+        )}
 
-      ) : (
-        <form ref={formRef} onSubmit={handleSubmitMainForm} className="space-y-2 sm:space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">Join the Celebration</h2>
-          {mainFormError && (
-            <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 text-sm sm:text-base">
-              {mainFormError}
+        {/* ✅ Show quiz after registration, in place of the form */}
+        {registered ? (
+          <div className="flex flex-col items-center gap-5 text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              🎉 Registered! Now take the Quiz
+            </h2>
+            <p className="text-gray-600 text-base sm:text-lg">
+              Answer 2/3 questions correctly to get verified and unlock video submission.
             </p>
-          )}
-          <div className="relative">
-            <label htmlFor="annotation" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Annotation</label>
-            <div className="relative">
-              <select id="annotation" name="annotation" value={formData.annotation} onChange={handleChange}
-                className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-900 py-2 sm:py-3 px-3 sm:px-4 pr-8 rounded-lg focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 text-sm sm:text-base"
-                required>
-                <option value="Mr">Mr</option>
-                <option value="Mrs">Mrs</option>
-                <option value="Ms">Ms</option>
-                <option value="Dr">Dr</option>
-                <option value="Dr.HC">Dr.HC</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9l4.57 4.57.707.707z" />
-                </svg>
+            <QuizPage userVideo={null} />
+          </div>
+
+        ) : existingUser ? (
+          <div className="text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted File</h2>
+            <div className="text-left space-y-2 text-base sm:text-lg text-gray-700">
+              <p><strong>Name:</strong> <span className="font-medium text-gray-900">{existingUser?.name}</span></p>
+              <p><strong>Company:</strong> <span className="font-medium text-gray-900">{existingUser.companyName || 'N/A'}</span></p>
+              <p><strong>Mobile:</strong> <span className="font-medium text-gray-900">{existingUser.mobile}</span></p>
+            </div>
+            {existingUser?.videoUrl || existingUser?.imageUrl ? (
+              <div className="mt-6 sm:mt-8 rounded-lg overflow-hidden border border-gray-300 shadow-md">
+                {existingUser.videoUrl
+                  ? <video controls src={existingUser.videoUrl} className="w-full h-auto object-cover" />
+                  : <img src={existingUser.imageUrl} className='max-h-80 mx-auto' alt="" />
+                }
               </div>
-            </div>
+            ) : (
+              <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-red-600">
+                No video submitted yet.
+                <button
+                  onClick={() => navigate('/video-submission')}
+                  className="block mx-auto mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200"
+                >
+                  Go to Video Submission
+                </button>
+              </p>
+            )}
+            <p className={`mt-2 text-sm sm:text-md font-semibold ${existingUser.isVerified ? 'text-blue-600' : 'text-red-600'}`}>
+              {existingUser.isVerified ? 'Email is verified.' : 'Email is not yet verified. Please check your inbox!'}
+            </p>
+            <button onClick={toggleStatusCheckForm} className="mt-6 sm:mt-8 text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
+              Go Back / Register New
+            </button>
           </div>
-          {['name', 'companyName', 'email', 'mobile'].map((field) => (
-            <div key={field} className="relative">
-              <label htmlFor={field} className="block text-gray-700 font-semibold mb-1 sm:mb-2 capitalize text-sm sm:text-base">
-                {field === 'companyName' ? 'Company Name' : field === 'mobile' ? 'Mobile Number' : field}
-                {field !== 'companyName' && <span className="text-red-500">*</span>}
-              </label>
-              <input
-                type={field === 'email' ? 'email' : field === 'mobile' ? 'tel' : 'text'}
-                id={field} name={field} value={formData[field]} onChange={handleChange}
-                className={`w-full p-2 sm:p-3 border ${field === "email" ? "" : "uppercase"} border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 text-sm sm:text-base`}
-                required={field !== 'companyName'}
-                placeholder={`Enter your ${field === 'companyName' ? 'company name' : field === 'mobile' ? 'mobile number' : field}...`}
-              />
-            </div>
-          ))}
-          <button type="submit" disabled={loading}
-            className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
-            {loading ? 'Registering...' : 'Register / Continue'}
-          </button>
-          <button type="button" onClick={toggleStatusCheckForm}
-            className="w-full mt-3 sm:mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm sm:text-base">
-            Already registered? Check the status
-          </button>
-        </form>
-      )}
-    </>
-  )}
-</div>
+
+        ) : (
+          <>
+            {showStatusCheckForm ? (
+              <form onSubmit={handleSubmitStatusCheck} className="space-y-4 sm:space-y-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">Check Status</h2>
+                {statusCheckError && (
+                  <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 text-sm sm:text-base">
+                    {statusCheckError}
+                  </p>
+                )}
+                <div className="relative">
+                  <label htmlFor="statusCheckEmail" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                    Email Address<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email" id="statusCheckEmail" name="statusCheckEmail"
+                    value={statusCheckEmail} onChange={handleStatusCheckChange}
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 text-sm sm:text-base"
+                    required placeholder="Enter your email..."
+                  />
+                </div>
+                <div className="relative">
+                  <label htmlFor="statusCheckPasscode" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                    6-Digit Passcode<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text" id="statusCheckPasscode" name="statusCheckPasscode"
+                    value={statusCheckPasscode} onChange={handleStatusCheckChange}
+                    maxLength="6"
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 text-sm sm:text-base"
+                    required placeholder="Enter your 6-digit passcode..."
+                  />
+                </div>
+                <button type="submit" disabled={loading}
+                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                  {loading ? 'Submitting...' : 'Submit'}
+                </button>
+                <button type="button" onClick={toggleStatusCheckForm}
+                  className="w-full mt-3 sm:mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm sm:text-base">
+                  Back to Registration
+                </button>
+              </form>
+
+            ) : (
+              <form ref={formRef} onSubmit={handleSubmitMainForm} className="space-y-2 sm:space-y-3">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">Join the Celebration</h2>
+                {mainFormError && (
+                  <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 text-sm sm:text-base">
+                    {mainFormError}
+                  </p>
+                )}
+                <div className="relative">
+                  <label htmlFor="annotation" className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Annotation</label>
+                  <div className="relative">
+                    <select id="annotation" name="annotation" value={formData.annotation} onChange={handleChange}
+                      className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-900 py-2 sm:py-3 px-3 sm:px-4 pr-8 rounded-lg focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 text-sm sm:text-base"
+                      required>
+                      <option value="Mr">Mr</option>
+                      <option value="Mrs">Mrs</option>
+                      <option value="Ms">Ms</option>
+                      <option value="Dr">Dr</option>
+                      <option value="Dr.HC">Dr.HC</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9l4.57 4.57.707.707z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                {['name', 'companyName', 'email', 'mobile'].map((field) => (
+                  <div key={field} className="relative">
+                    <label htmlFor={field} className="block text-gray-700 font-semibold mb-1 sm:mb-2 capitalize text-sm sm:text-base">
+                      {field === 'companyName' ? 'Company Name' : field === 'mobile' ? 'Mobile Number' : field}
+                      {field !== 'companyName' && <span className="text-red-500">*</span>}
+                    </label>
+                    <input
+                      type={field === 'email' ? 'email' : field === 'mobile' ? 'tel' : 'text'}
+                      id={field} name={field} value={formData[field]} onChange={handleChange}
+                      className={`w-full p-2 sm:p-3 border ${field === "email" ? "" : "uppercase"} border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 text-sm sm:text-base`}
+                      required={field !== 'companyName'}
+                      placeholder={`Enter your ${field === 'companyName' ? 'company name' : field === 'mobile' ? 'mobile number' : field}...`}
+                    />
+                  </div>
+                ))}
+                <button type="submit" disabled={loading}
+                  className={`w-full bg-gradient-to-r from-green-500 to-blue-600 text-white p-2 sm:p-3 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-green-600 hover:to-blue-700 transition duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                  {loading ? 'Registering...' : 'Register / Continue'}
+                </button>
+                <button type="button" onClick={toggleStatusCheckForm}
+                  className="w-full mt-3 sm:mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm sm:text-base">
+                  Already registered? Check the status
+                </button>
+              </form>
+            )}
+          </>
+        )}
+      </div>
 
 
 
