@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import QuizPage from '../components/QuizPage';
+import { useMemo } from 'react';
 
 export default function VideoSubmissionPage() {
   const [videoFile, setVideoFile] = useState(null);
@@ -15,16 +16,14 @@ export default function VideoSubmissionPage() {
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail")
 
+  console.log(userEmail)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("verified") === "true") {
-      // Refresh user data so isVerified reflects the update
-      const getdata = async () => {
-        const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/singleUser/${userEmail}`);
-        setUser(res.data);
-      };
-      getdata();
+    const getdata = async () => {
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/singleUser/${userEmail}`);
+      setUser(res?.data);
+
     }
+    getdata();
   }, []);
 
   useEffect(() => {
@@ -48,7 +47,6 @@ export default function VideoSubmissionPage() {
     fetchUserVideo();
   }, []);
 
-  console.log(user)
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('video/')) {
@@ -230,7 +228,7 @@ export default function VideoSubmissionPage() {
             </div>
           </div>
 
-          
+
 
           {/* Video Upload Section */}
           {user?.isVerified ? (

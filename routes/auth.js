@@ -91,7 +91,6 @@ router.post("/quiz/:email", async (req, res) => {
       return res.status(400).json({ message: "Email is required." });
     }
 
-    // ✅ Early return if score is less than 2
     if (quizScore < 2) {
       return res.status(200).json({
         message: "Score too low. No certificate generated.",
@@ -114,7 +113,6 @@ router.post("/quiz/:email", async (req, res) => {
 
     const userAnnotationPrefix = annotation ? `${annotation} ` : "";
 
-    // No need for if/else anymore — score is always >= 2 here
     console.log(`[QUIZ] Generating Quiz Certificate for score: ${quizScore}`);
     const certificateHtml = generateQuizCertificateHTML(
       userAnnotationPrefix,
@@ -169,10 +167,17 @@ router.post("/quiz/:email", async (req, res) => {
 
     const emailSubject =
       "Your World Pest Day Quiz Certificate & Contest Invitation";
+
+    // ✅ Fetch PDF as buffer for reliable attachment
+    console.log("[QUIZ] Fetching PDF buffer for email attachment...");
+    const pdfResponse = await axios.get(generatedPdfUrl, {
+      responseType: "arraybuffer",
+    });
+
     const attachments = [
       {
         filename: safeFileName,
-        href: generatedPdfUrl,
+        content: Buffer.from(pdfResponse.data),
         contentType: "application/pdf",
       },
     ];
@@ -210,14 +215,13 @@ router.post("/quiz/:email", async (req, res) => {
       attachments,
     );
 
-    console.log(
-      "[QUIZ] Quiz certificate processed and email dispatched successfully.",
-    );
+    console.log("[QUIZ] Quiz certificate processed and email dispatched successfully.");
 
     return res.status(200).json({
       message: "Quiz processed and certificate emailed successfully!",
       certificateUrl: generatedPdfUrl,
     });
+
   } catch (error) {
     console.error("[QUIZ ERROR]:", error);
     return res.status(500).json({
@@ -228,14 +232,9 @@ router.post("/quiz/:email", async (req, res) => {
     if (tempHtmlFilePath) {
       try {
         await fs.promises.unlink(tempHtmlFilePath);
-        console.log(
-          `[QUIZ] Cleaned up temporary HTML file: ${tempHtmlFilePath}`,
-        );
+        console.log(`[QUIZ] Cleaned up temporary HTML file: ${tempHtmlFilePath}`);
       } catch (cleanupErr) {
-        console.error(
-          `[QUIZ ERROR] Failed to clean up temporary file:`,
-          cleanupErr,
-        );
+        console.error(`[QUIZ ERROR] Failed to clean up temporary file:`, cleanupErr);
       }
     }
   }
