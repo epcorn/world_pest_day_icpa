@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import HeroSlider from '../components/HeroSlider';
+import QuizPage from '../components/QuizPage';
 
 // Array of provided image URLs for the slider
 const bannerImages = [
@@ -69,12 +70,6 @@ const LandingPage = () => {
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 1, delay: 1.5, ease: 'power2.out' }
     );
-    // Animation for the slider images
-    // gsap.fromTo(
-    //   '.slider-image',
-    //   { opacity: 0 },
-    //   { opacity: 1, duration: 1, ease: 'power2.out' }
-    // );
   }, [currentImageIndex]);
 
   // Slider effect: Change image every 5 seconds
@@ -129,7 +124,7 @@ const LandingPage = () => {
       showMessage(response.data.message);
       localStorage.setItem('userEmail', email);
       localStorage.setItem('isVerified', 'false');
-      navigate('/video-submission');
+      // navigate('/video-submission');
     } catch (err) {
       console.error('Registration/Check error:', err);
       const errorMessage = err.response?.data?.message || 'Failed to submit form. Please try again.';
@@ -139,6 +134,7 @@ const LandingPage = () => {
     }
   };
 
+  console.log(existingUser)
   const handleSubmitStatusCheck = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -407,6 +403,15 @@ const LandingPage = () => {
             )}
           </>
         )}
+      </div>
+
+      <div className='max-w-3xl bg-white'>
+        <div className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl text-center flex flex-col items-center gap-5">
+          <p className="text-gray-600 text-base sm:text-xl font-medium">
+            Answer 2/3 Quiz Questions & get Approved
+          </p>
+          <QuizPage userVideo={''} />
+        </div>
       </div>
 
       {/* "For any query contact" moved here */}

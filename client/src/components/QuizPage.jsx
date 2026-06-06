@@ -23,14 +23,16 @@ function QuizPage({ userVideo, onSubmissionSuccess }) {
   useEffect(() => {
     const submitQuizResult = async () => {
       // FIX: Ensure we match userVideo._id accurately and don't re-trigger while loading/successful
-      if (count === 3 && score >= 2 && userVideo?._id && !submitStatus.success && !submitStatus.loading) {
+      if (count === 3 && score >= 2 && !submitStatus.success && !submitStatus.loading) {
 
         setSubmitStatus(prev => ({ ...prev, loading: true, error: null }));
 
         try {
-          console.log("Submitting quiz score for user:", userVideo._id);
+          const email = localStorage.getItem("userEmail");
+
+          console.log("Submitting quiz score for user:", );
           const res = await axios.post(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/approve/${userVideo._id}?score=${score}`
+            `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/quiz/${email}?score=${score}`
           );
           console.log("Approval response:", res.data);
 
@@ -48,7 +50,7 @@ function QuizPage({ userVideo, onSubmissionSuccess }) {
 
     submitQuizResult();
     // FIX: Removed submitStatus states from dependencies to completely break the infinite update loop
-  }, [count, score, userVideo?._id, onSubmissionSuccess]);
+  }, [count, score, onSubmissionSuccess]);
 
   const handleClick = (chosenOption, correctOption) => {
     if (loading) return;
@@ -90,7 +92,7 @@ function QuizPage({ userVideo, onSubmissionSuccess }) {
         {score >= 2 && (
           <div className="mt-4 p-3 rounded-lg bg-gray-50 border border-gray-200">
             {submitStatus.loading && <p className="text-blue-500 animate-pulse">Submitting approval status...</p>}
-            {submitStatus.success && <a href={userVideo.quizCertificateUrl} className="text-green-600 font-medium">Approved and find Certificate on Email or Click to Download 🚀</a>}
+            {submitStatus.success && <p className="text-green-600 font-medium">Approved and find Certificate on Email 🚀</p>}
             {submitStatus.error && <p className="text-red-500">{submitStatus.error}</p>}
           </div>
         )}

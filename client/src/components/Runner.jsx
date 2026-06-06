@@ -3,44 +3,23 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
 const url = import.meta.env.VITE_APP_API_BASE_URL
+
 function Runner() {
+  // Keeps track of the formatted pairs returned directly from the backend
   const [runnerData, setRunnerData] = useState([])
-
-  const currentYear = new Date().getFullYear();
-  const startOfYear = new Date(`${currentYear}-01-01T00:00:00.000Z`);
-  const endOfYear = new Date(`${currentYear}-12-31T23:59:59.999Z`);
-
-  const startOfPrevYear = new Date(`${currentYear - 1}-01-01T00:00:00.000Z`);
-  const endOfPrevYear = new Date(`${currentYear - 1}-12-31T23:59:59.999Z`);
 
   useEffect(() => {
     async function getRunnerInfo() {
-      const res = await axios.get(`${url}/api/users/runner`);
-
-      const prevYear = res.data.filter(d => {
-        const createdAtTime = new Date(d.createdAt).getTime();
-        return createdAtTime >= startOfPrevYear && createdAtTime <= endOfPrevYear - 1;
-      });
-      const thisYear = res.data.filter(d => {
-        const createdAtTime = new Date(d.createdAt).getTime();
-        return createdAtTime >= startOfYear && createdAtTime <= endOfYear;
-      });
-      const thisYearData = {
-        certificateIssued: thisYear.filter(f => f.certificateUrl !== "").length,
-        usersJoined: thisYear.length,
-        videoUploaded: thisYear.filter(v => v.videoUrl !== null).length,
-        imageUploaded: thisYear.filter(v => v.imageUrl !== null).length,
+      try {
+        const res = await axios.get(`${url}/api/users/runner`);
+        // The endpoint directly returns: [ {thisYearStats}, {prevYearStats} ]
+        setRunnerData(res.data);
+      } catch (error) {
+        console.error("Failed fetching live runner counters:", error);
       }
-      const prevYearData = {
-        certificateIssued: prevYear.filter(f => f.certificateUrl !== "").length,
-        usersJoined: prevYear.length,
-        videoUploaded: prevYear.filter(v => v.videoUrl !== null).length,
-        imageUploaded: prevYear.filter(v => v.imageUrl !== null).length,
-      }
-      setRunnerData([thisYearData, prevYearData])
     }
-    getRunnerInfo()
-  }, [])
+    getRunnerInfo();
+  }, []);
 
   return (
     <div className="w-full bg-cyan-950 text-cyan-100 py-3 overflow-hidden border-y border-cyan-800 shadow-inner select-none">

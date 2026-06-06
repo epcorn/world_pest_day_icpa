@@ -7,6 +7,7 @@ export default function VideoSubmissionPage() {
   const [videoFile, setVideoFile] = useState(null);
   const [userVideo, setUserVideo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [certloading, setCertLoading] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
 
@@ -91,13 +92,13 @@ export default function VideoSubmissionPage() {
       const uploadedUserId = res.data._id;
 
       // 3. Issue the general participation certificate (No quiz score provided yet)
+      setCertLoading(true)
       const certificateRes = await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/approve/${uploadedUserId}`
       );
 
       alert('Participation Certificate issued and emailed successfully! 🎉 Now go answer the Quiz questions.');
-      console.log('Certificate Data:', certificateRes.data);
-
+      setCertLoading(false)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to complete submission. Please try again. 😢');
       console.error('Submission error:', err.response?.data || err);
@@ -249,7 +250,12 @@ export default function VideoSubmissionPage() {
                 disabled={uploading || !userVideo?.isVerified || userVideo?.certificateUrl}
                 className="w-full bg-gradient-to-r from-teal-600 to-cyan-700 text-white p-3 sm:p-4 rounded-lg font-bold text-lg sm:text-xl shadow-md hover:from-teal-700 hover:to-cyan-800 transition duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {uploading ? 'Uploading... please wait! ⏳' : 'Submit Now! 🚀'}
+                {uploading
+                  ? 'Uploading... please wait! ⏳'
+                  : certloading
+                    ? 'Sending certificate... 📄'
+                    : 'Submit Now! 🚀'
+                }
               </button>
               <p className="text-gray-600 text-xs sm:text-sm mt-4 font-medium text-center">
                 Note: Your submission will be valid only after email verification. Check your inbox! If not in inbox then chek spam folder 📧
@@ -263,7 +269,7 @@ export default function VideoSubmissionPage() {
               <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 sm:h-16 sm:w-16 mb-4"></div>
               <p className="text-gray-600 text-base sm:text-xl font-medium">Loading your video submission... 🔄</p>
             </div>
-          ) : userVideo && userVideo.videoUrl || userVideo.imageUrl ? ( // Ensure videoUrl exists before rendering video player
+          ) : userVideo && userVideo?.videoUrl || userVideo?.imageUrl ? ( // Ensure videoUrl exists before rendering video player
             <div className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-purple-200">
               <h2 className="text-2xl sm:text-3xl font-bold text-purple-700 mb-6 text-center flex items-center justify-center">
                 <span className="mr-3 text-3xl sm:text-4xl">🎬</span> Your Awesome Submission!
@@ -326,33 +332,7 @@ export default function VideoSubmissionPage() {
               </p>
             </div>
           )}
-          {userVideo?.isVerified && (
-            <div className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl text-center flex flex-col items-center gap-5">
-              {!userVideo.quizCertificateUrl ? (
-                <>
-                  <p className="text-gray-600 text-base sm:text-xl font-medium">
-                    Answer 2/3 Quiz Questions & get Approved
-                  </p>
-                  <QuizPage userVideo={userVideo} />
-                </>
-              ) : (
-                <>
-                  <p className="text-xl sm:text-2xl font-semibold text-gray-800">
-                    Congrats you got a certificate! 🎉
-                  </p>
-                  <a
-                    href={userVideo.quizCertificateUrl}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block px-5 py-2.5 bg-gray-700 hover:bg-gray-800 active:scale-95 text-white font-medium text-sm sm:text-base rounded-xl shadow transition duration-200"
-                  >
-                    Download Quiz Certificate
-                  </a>
-                </>
-              )}
-            </div>
-          )}
+          
 
         </div>
 
