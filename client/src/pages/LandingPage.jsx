@@ -21,6 +21,10 @@ const LandingPage = () => {
     email: '',
     mobile: '',
   });
+
+  const quizRef = useRef()
+  const userEmail = localStorage.getItem("userEmail")
+  
   const [loading, setLoading] = useState(false);
   const [mainFormError, setMainFormError] = useState('');
   const [statusCheckError, setStatusCheckError] = useState('');
@@ -134,7 +138,6 @@ const LandingPage = () => {
     }
   };
 
-  console.log(existingUser)
   const handleSubmitStatusCheck = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -225,6 +228,14 @@ const LandingPage = () => {
             Due to multiple requests, we are extending the video submission deadline to give everyone a fair chance to participate.  </p>
         </div> */}
 
+      {userEmail && <div className='max-w-3xl bg-white'>
+        <div ref={quizRef} className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl text-center flex flex-col items-center gap-5">
+          <p className="text-gray-600 text-base sm:text-xl font-medium">
+            Answer 2/3 Quiz Questions & get Approved
+          </p>
+          <QuizPage userVideo={''} />
+        </div>
+      </div>}
       <div className="relative z-10 bg-white bg-opacity-95 p-6 md:p-12 rounded-xl shadow-2xl ring-4 ring-green-300 ring-opacity-50 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out w-11/12 max-w-md mx-auto">
         {showCustomAlert && (
           <div className="bg-blue-100 text-blue-700 p-3 rounded-lg text-center font-medium border border-blue-200 mb-6 animate-pulse-once">
@@ -405,14 +416,7 @@ const LandingPage = () => {
         )}
       </div>
 
-      <div className='max-w-3xl bg-white'>
-        <div className="md:col-span-2 lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-xl text-center flex flex-col items-center gap-5">
-          <p className="text-gray-600 text-base sm:text-xl font-medium">
-            Answer 2/3 Quiz Questions & get Approved
-          </p>
-          <QuizPage userVideo={''} />
-        </div>
-      </div>
+
 
       {/* "For any query contact" moved here */}
       <div className="relative z-10 mt-6 text-center text-gray-700 text-base sm:text-lg px-4">
