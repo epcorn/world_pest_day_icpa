@@ -138,7 +138,6 @@ const LandingPage = () => {
       localStorage.setItem('userEmail', email);
       localStorage.setItem('isVerified', 'false');
       setRegistered(true);
-      // navigate('/video-submission');
     } catch (err) {
       console.error('Registration/Check error:', err);
       const errorMessage = err.response?.data?.message || 'Failed to submit form. Please try again.';
@@ -172,7 +171,12 @@ const LandingPage = () => {
 
       localStorage.setItem('userEmail', statusCheckEmail);
       localStorage.setItem('isVerified', user.isVerified ? 'true' : 'false');
-      navigate('/video-submission')
+      if (user?.score === null || !user.isVerified) {
+        setRegistered(true)
+      } //open quiz if not played
+      else {
+        navigate('/video-submission')
+      }
     } catch (err) {
       console.error('Status Check Error:', err);
       setStatusCheckError(err.response?.data?.message || 'Failed to check status. Please check your email and passcode.');
@@ -247,7 +251,7 @@ const LandingPage = () => {
         )}
 
         {/* ✅ Show quiz after registration, in place of the form */}
-        {registered ? (
+        {(registered && !user.isVerified) ? (
           <div className="flex flex-col items-center gap-5 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
               🎉 Registered! Now take the Quiz
@@ -256,40 +260,6 @@ const LandingPage = () => {
               Answer 2/3 questions correctly to get verified and unlock video submission.
             </p>
             <QuizPage userVideo={null} />
-          </div>
-
-        ) : existingUser ? (
-          <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">Your Submitted File</h2>
-            <div className="text-left space-y-2 text-base sm:text-lg text-gray-700">
-              <p><strong>Name:</strong> <span className="font-medium text-gray-900">{existingUser?.name}</span></p>
-              <p><strong>Company:</strong> <span className="font-medium text-gray-900">{existingUser.companyName || 'N/A'}</span></p>
-              <p><strong>Mobile:</strong> <span className="font-medium text-gray-900">{existingUser.mobile}</span></p>
-            </div>
-            {existingUser?.videoUrl || existingUser?.imageUrl ? (
-              <div className="mt-6 sm:mt-8 rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                {existingUser.videoUrl
-                  ? <video controls src={existingUser.videoUrl} className="w-full h-auto object-cover" />
-                  : <img src={existingUser.imageUrl} className='max-h-80 mx-auto' alt="" />
-                }
-              </div>
-            ) : (
-              <p className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-red-600">
-                No video submitted yet.
-                <button
-                  onClick={() => navigate('/video-submission')}
-                  className="block mx-auto mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200"
-                >
-                  Go to Video Submission
-                </button>
-              </p>
-            )}
-            <p className={`mt-2 text-sm sm:text-md font-semibold ${existingUser.isVerified ? 'text-blue-600' : 'text-red-600'}`}>
-              {existingUser.isVerified ? 'Email is verified.' : 'Email is not yet verified. Please check your inbox!'}
-            </p>
-            <button onClick={toggleStatusCheckForm} className="mt-6 sm:mt-8 text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
-              Go Back / Register New
-            </button>
           </div>
 
         ) : (
