@@ -22,7 +22,6 @@ function QuizPage({ userVideo, onSubmissionSuccess }) {
   // Submit to API automatically when the quiz ends and score qualifies
   useEffect(() => {
     const submitQuizResult = async () => {
-      // FIX: Ensure we match userVideo._id accurately and don't re-trigger while loading/successful
       if (count === 3 && score >= 2 && !submitStatus.success && !submitStatus.loading) {
 
         setSubmitStatus(prev => ({ ...prev, loading: true, error: null }));

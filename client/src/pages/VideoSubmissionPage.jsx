@@ -9,9 +9,23 @@ export default function VideoSubmissionPage() {
   const [loading, setLoading] = useState(true);
   const [certloading, setCertLoading] = useState(false);
   const [error, setError] = useState('');
+  const [user, setUser] = useState({})
   const [uploading, setUploading] = useState(false);
 
   const navigate = useNavigate();
+  const userEmail = localStorage.getItem("userEmail")
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("verified") === "true") {
+      // Refresh user data so isVerified reflects the update
+      const getdata = async () => {
+        const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/singleUser/${userEmail}`);
+        setUser(res.data);
+      };
+      getdata();
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUserVideo = async () => {
@@ -34,6 +48,7 @@ export default function VideoSubmissionPage() {
     fetchUserVideo();
   }, []);
 
+  console.log(user)
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('video/')) {
@@ -97,7 +112,7 @@ export default function VideoSubmissionPage() {
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/approve/${uploadedUserId}`
       );
 
-      alert('Participation Certificate issued and emailed successfully! 🎉 Now go answer the Quiz questions.');
+      alert('Participation Certificate issued and emailed successfully! 🎉');
       setCertLoading(false)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to complete submission. Please try again. 😢');
@@ -215,53 +230,66 @@ export default function VideoSubmissionPage() {
             </div>
           </div>
 
-          {/* Video Upload Section */}
-          <div className="md:col-span-2 lg:col-span-3 bg-gradient-to-r from-teal-50 to-cyan-50 p-6 sm:p-8 rounded-2xl shadow-xl border border-teal-200 hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
-            <h2 className="text-2xl sm:text-3xl font-bold text-teal-700 mb-6 text-center flex items-center justify-center">
-              <span className="mr-3 text-3xl sm:text-4xl">⬆️</span> Upload Your Masterpiece!
-            </h2>
-            {error && (
-              <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 mb-4 animate-pulse-once text-sm sm:text-base">
-                {error}
-              </p>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-              <label
-                htmlFor="video-upload"
-                className="block text-gray-700 font-semibold mb-2 text-base sm:text-lg cursor-pointer"
-              >
-                Select your file <span className="text-sm font-normal text-gray-500">(Video max 100MB, or Image)</span>
-              </label>
+          
 
-              <input
-                id="video-upload"
-                type="file"
-                accept="video/*, image/*"
-                onChange={handleFileChange}
-                className="block w-full text-sm sm:text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-teal-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm sm:file:text-base file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
-              />
-              {videoFile && (
-                <p className="text-gray-600 text-sm mt-2">
-                  Selected file: <span className="font-medium text-teal-700">{videoFile.name}</span>
+          {/* Video Upload Section */}
+          {user?.isVerified ? (
+            <div className="md:col-span-2 lg:col-span-3 bg-gradient-to-r from-teal-50 to-cyan-50 p-6 sm:p-8 rounded-2xl shadow-xl border border-teal-200 hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+              <h2 className="text-2xl sm:text-3xl font-bold text-teal-700 mb-6 text-center flex items-center justify-center">
+                <span className="mr-3 text-3xl sm:text-4xl">⬆️</span> Upload Your Masterpiece!
+              </h2>
+              {error && (
+                <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center font-medium border border-red-200 mb-4 animate-pulse-once text-sm sm:text-base">
+                  {error}
                 </p>
               )}
-              <button
-                type="submit"
-                disabled={uploading || !userVideo?.isVerified || userVideo?.certificateUrl}
-                className="w-full bg-gradient-to-r from-teal-600 to-cyan-700 text-white p-3 sm:p-4 rounded-lg font-bold text-lg sm:text-xl shadow-md hover:from-teal-700 hover:to-cyan-800 transition duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {uploading
-                  ? 'Uploading... please wait! ⏳'
-                  : certloading
-                    ? 'Sending certificate... 📄'
-                    : 'Submit Now! 🚀'
-                }
-              </button>
-              <p className="text-gray-600 text-xs sm:text-sm mt-4 font-medium text-center">
-                Note: Your submission will be valid only after email verification. Check your inbox! If not in inbox then chek spam folder 📧
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <label
+                  htmlFor="video-upload"
+                  className="block text-gray-700 font-semibold mb-2 text-base sm:text-lg cursor-pointer"
+                >
+                  Select your file <span className="text-sm font-normal text-gray-500">(Video max 100MB, or Image)</span>
+                </label>
+                <input
+                  id="video-upload"
+                  type="file"
+                  accept="video/*, image/*"
+                  onChange={handleFileChange}
+                  className="block w-full text-sm sm:text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-teal-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm sm:file:text-base file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+                />
+                {videoFile && (
+                  <p className="text-gray-600 text-sm mt-2">
+                    Selected file: <span className="font-medium text-teal-700">{videoFile.name}</span>
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  disabled={uploading || userVideo?.certificateUrl}
+                  className="w-full bg-gradient-to-r from-teal-600 to-cyan-700 text-white p-3 sm:p-4 rounded-lg font-bold text-lg sm:text-xl shadow-md hover:from-teal-700 hover:to-cyan-800 transition duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {uploading
+                    ? 'Uploading... please wait! ⏳'
+                    : certloading
+                      ? 'Sending certificate... 📄'
+                      : 'Submit Now! 🚀'
+                  }
+                </button>
+                <p className="text-gray-600 text-xs sm:text-sm mt-4 font-medium text-center">
+                  Note: Your submission will be valid only after email verification. Check your inbox! 📧
+                </p>
+              </form>
+            </div>
+          ) : (
+            // ✅ Show this banner if not verified yet
+            <div className="md:col-span-2 lg:col-span-3 bg-yellow-50 border border-yellow-300 p-6 sm:p-8 rounded-2xl shadow-xl text-center">
+              <p className="text-yellow-700 text-lg sm:text-xl font-semibold">
+                📧 Please verify your email to unlock the upload section.
               </p>
-            </form>
-          </div>
+              <p className="text-yellow-600 text-sm sm:text-base mt-2">
+                Check your inbox (or spam folder) for the verification link we sent you.
+              </p>
+            </div>
+          )}
 
           {/* User Submission Display */}
           {loading ? (
@@ -332,7 +360,7 @@ export default function VideoSubmissionPage() {
               </p>
             </div>
           )}
-          
+
 
         </div>
 

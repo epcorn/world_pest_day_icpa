@@ -708,4 +708,15 @@ router.post("/approve/:userId", async (req, res) => {
   }
 });
 
+router.get("/singleUser/:email", async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await User.findOne({ email: email.trim().toLowerCase() }); // ✅ await not new
+    if (!user) return res.status(404).json({ message: "User not found." });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error." });
+  }
+});
+
 module.exports = router;
