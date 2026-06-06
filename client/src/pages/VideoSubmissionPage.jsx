@@ -246,7 +246,7 @@ export default function VideoSubmissionPage() {
               )}
               <button
                 type="submit"
-                disabled={uploading || !userVideo?.isVerified}
+                disabled={uploading || !userVideo?.isVerified || userVideo?.certificateUrl}
                 className="w-full bg-gradient-to-r from-teal-600 to-cyan-700 text-white p-3 sm:p-4 rounded-lg font-bold text-lg sm:text-xl shadow-md hover:from-teal-700 hover:to-cyan-800 transition duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {uploading ? 'Uploading... please wait! ⏳' : 'Submit Now! 🚀'}

@@ -163,7 +163,7 @@ const LandingPage = () => {
 
       localStorage.setItem('userEmail', statusCheckEmail);
       localStorage.setItem('isVerified', user.isVerified ? 'true' : 'false');
-
+      navigate('/video-submission')
     } catch (err) {
       console.error('Status Check Error:', err);
       setStatusCheckError(err.response?.data?.message || 'Failed to check status. Please check your email and passcode.');

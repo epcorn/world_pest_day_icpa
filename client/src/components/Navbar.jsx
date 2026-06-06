@@ -43,7 +43,6 @@ const Navbar = () => {
     </NavLink>
   );
 
-
   return (
     <div>
 

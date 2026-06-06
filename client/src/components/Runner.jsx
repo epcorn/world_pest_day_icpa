@@ -69,8 +69,8 @@ export default Runner
 
 function StatGroup({ title, data, highlight }) {
   return (
-    <div className={`flex items-center gap-6 text-sm font-medium rounded-md pr-2 ${highlight ? "ring-2 ring-cyan-500 bg-cyan-900/40" 
-        : "ring-1 ring-cyan-700/50 bg-cyan-950/20"}`}>
+    <div className={`flex items-center gap-6 text-sm font-medium rounded-md pr-2 ${highlight ? "ring-2 ring-cyan-500 bg-cyan-900/40"
+      : "ring-1 ring-cyan-700/50 bg-cyan-950/20"}`}>
       <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${highlight ? 'bg-cyan-500 text-cyan-950' : 'bg-cyan-800/60 text-cyan-300 border border-cyan-700/50'
         }`}>
         {title}
@@ -78,22 +78,24 @@ function StatGroup({ title, data, highlight }) {
 
       <div className="flex items-center gap-2 *:leading-none">
         <span className="text-cyan-400 font-semibold ">Certificates Issued:</span>
-        <span className="text-white font-bold tabular-nums">{data?.certificateIssued ?? 0}</span>
+        <span className={`${(data?.certificateIssued !== undefined && data?.certificateIssued !== null) ? "text-white font-bold tabular-nums" : "animate-pulse"}`}>
+          {data?.certificateIssued ?? 0}
+        </span>
       </div>
 
       <div className="flex items-center gap-2 *:leading-none">
         <span className="text-cyan-400 font-semibold">Users Joined:</span>
-        <span className="text-white font-bold tabular-nums">{data?.usersJoined ?? 0}</span>
+        <span className={`${(data?.usersJoined !== undefined && data?.usersJoined !== null) ? "text-white font-bold tabular-nums" : "animate-pulse"}`}>{data?.usersJoined ?? 0}</span>
       </div>
 
       <div className="flex items-center gap-2 *:leading-none">
         <span className="text-cyan-400 font-semibold">Videos submitted:</span>
-        <span className="text-white font-bold tabular-nums">{data?.videoUploaded ?? 0}</span>
+        <span className={`${(data?.videoUploaded !== undefined && data?.videoUploaded !== null) ? "text-white font-bold tabular-nums" : "animate-pulse"}`}>{data?.videoUploaded ?? 0}</span>
       </div>
 
       <div className="flex items-center gap-2 *:leading-none">
         <span className="text-cyan-400 font-semibold">Images submitted:</span>
-        <span className="text-white font-bold tabular-nums">{data?.imageUploaded ?? 0}</span>
+        <span className={`${(data?.imageUploaded !== undefined && data?.imageUploaded !== null) ? "text-white font-bold tabular-nums" : "animate-pulse"}`}>{data?.imageUploaded ?? 0}</span>
       </div>
     </div>
   );
